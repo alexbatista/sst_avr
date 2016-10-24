@@ -22,13 +22,19 @@
 
 #if nTasks == 8
     typedef uint8_t uintX_t;
+    #define ITERATORPRIOR 128
 #elif nTasks == 16
     typedef uint16_t uintX_t;
+    #define ITERATORPRIOR 32768
 #elif nTasks == 32
     typedef uint32_t uintX_t;
+    #define ITERATORPRIOR  2147483648L
 #elif nTasks == 64
     typedef uint64_t uintX_t;
+    #define ITERATORPRIOR 9223372036854775808L
 #endif
+
+
 
 
 #include <stdint.h>                 /* exact-width integer types, ANSI C'99 */
