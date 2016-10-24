@@ -17,10 +17,24 @@
 #ifndef sst_h
 #define sst_h
 
+
+#define nTasks 32
+
+#if nTasks == 8
+    typedef uint8_t uintX_t;
+#elif nTasks == 16
+    typedef uint16_t uintX_t;
+#elif nTasks == 32
+    typedef uint32_t uintX_t;
+#elif nTasks == 64
+    typedef uint64_t uintX_t;
+#endif
+
+
 #include <stdint.h>                 /* exact-width integer types, ANSI C'99 */
 
-typedef uint8_t SSTSignal;
-typedef uint8_t SSTParam;
+typedef uintX_t SSTSignal;
+typedef uintX_t SSTParam;
 
 typedef struct SSTEventTag SSTEvent;
 struct SSTEventTag {
@@ -31,17 +45,17 @@ struct SSTEventTag {
 typedef void (*SSTTask)(SSTEvent e);
 
 void SST_init(void);
-void SST_task(SSTTask task, uint8_t prio, SSTEvent *queue, uint8_t qlen,
+void SST_task(SSTTask task, uintX_t prio, SSTEvent *queue, uintX_t qlen,
               SSTSignal sig, SSTParam  par);
 void SST_start(void);
 void SST_run(void);
 void SST_onIdle(void);
 void SST_exit(void);
 
-uint8_t SST_post(uint8_t prio, SSTSignal sig, SSTParam  par);
+uintX_t SST_post(uintX_t prio, SSTSignal sig, SSTParam  par);
 
-uint8_t SST_mutexLock(uint8_t prioCeiling);
-void SST_mutexUnlock(uint8_t orgPrio);
+uintX_t SST_mutexLock(uintX_t prioCeiling);
+void SST_mutexUnlock(uintX_t orgPrio);
 
 void SST_schedule_(void);
 
@@ -61,7 +75,7 @@ void SST_schedule_(void);
 
 
 /* public-scope objects */
-extern uint8_t SST_currPrio_;     /* current priority of the executing task */
-extern uint8_t SST_readySet_;                              /* SST ready-set */
+extern uintX_t SST_currPrio_;     /* current priority of the executing task */
+extern uintX_t SST_readySet_;                              /* SST ready-set */
 
 #endif                                                             /* sst_h */

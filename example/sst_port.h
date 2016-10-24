@@ -26,7 +26,7 @@
                                                /* maximum SST task priority */
 #define SST_MAX_PRIO     8
 
-#include "../include/sst.h"                      /* SST platform-independent interface */
+#include "sst.h"                      /* SST platform-independent interface */
 
 #endif                                                        /* sst_port_h */
 

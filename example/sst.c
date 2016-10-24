@@ -16,26 +16,27 @@
 *****************************************************************************/
 #include "sst_port.h"
 
+
 /* Public-scope objects ----------------------------------------------------*/
-uint8_t SST_currPrio_ = (uint8_t)0xFF;              /* current SST priority */
-uint8_t SST_readySet_ = (uint8_t)0;                        /* SST ready-set */
+uintX_t SST_currPrio_ = (uintX_t)0xFF;              /* current SST priority */
+uintX_t SST_readySet_ = (uintX_t)0;                        /* SST ready-set */
 
 typedef struct TaskCBTag TaskCB;
 struct TaskCBTag {
     SSTTask task__;
     SSTEvent *queue__;
-    uint8_t end__;
-    uint8_t head__;
-    uint8_t tail__;
-    uint8_t nUsed__;
-    uint8_t mask__;
+    uintX_t end__;
+    uintX_t head__;
+    uintX_t tail__;
+    uintX_t nUsed__;
+    uintX_t mask__;
 };
 
 /* Local-scope objects -----------------------------------------------------*/
 static TaskCB l_taskCB[SST_MAX_PRIO];
 
 /*..........................................................................*/
-void SST_task(SSTTask task, uint8_t prio, SSTEvent *queue, uint8_t qlen,
+void SST_task(SSTTask task, uintX_t prio, SSTEvent *queue, uintX_t qlen,
               SSTSignal sig, SSTParam par)
 {
     SSTEvent ie;                                    /* initialization event */
@@ -43,9 +44,9 @@ void SST_task(SSTTask task, uint8_t prio, SSTEvent *queue, uint8_t qlen,
     tcb->task__  = task;
     tcb->queue__ = queue;
     tcb->end__   = qlen;
-    tcb->head__  = (uint8_t)0;
-    tcb->tail__  = (uint8_t)0;
-    tcb->nUsed__ = (uint8_t)0;
+    tcb->head__  = (uintX_t)0;
+    tcb->tail__  = (uintX_t)0;
+    tcb->nUsed__ = (uintX_t)0;
     tcb->mask__  = (1 << (prio - 1));
     ie.sig = sig;
     ie.par = par;
@@ -56,7 +57,7 @@ void SST_run(void) {
     // SST_start();                                              /* start ISRs */
 
     SST_INT_LOCK();
-    SST_currPrio_ = (uint8_t)0;   /* set the priority for the SST idle loop */
+    SST_currPrio_ = (uintX_t)0;   /* set the priority for the SST idle loop */
     SST_schedule_();                  /* process all events produced so far */
     SST_INT_UNLOCK();
 
@@ -65,30 +66,30 @@ void SST_run(void) {
     }
 }
 /*..........................................................................*/
-uint8_t SST_post(uint8_t prio, SSTSignal sig, SSTParam par) {
+uintX_t SST_post(uintX_t prio, SSTSignal sig, SSTParam par) {
     TaskCB *tcb = &l_taskCB[prio - 1];
     SST_INT_LOCK();
     if (tcb->nUsed__ < tcb->end__) {
         tcb->queue__[tcb->head__].sig = sig;/* insert the event at the head */
         tcb->queue__[tcb->head__].par = par;
         if ((++tcb->head__) == tcb->end__) {
-            tcb->head__ = (uint8_t)0;                      /* wrap the head */
+            tcb->head__ = (uintX_t)0;                      /* wrap the head */
         }
-        if ((++tcb->nUsed__) == (uint8_t)1) {           /* the first event? */
+        if ((++tcb->nUsed__) == (uintX_t)1) {           /* the first event? */
             SST_readySet_ |= tcb->mask__;   /* insert task to the ready set */
             SST_schedule_();            /* check for synchronous preemption */
         }
         SST_INT_UNLOCK();
-        return (uint8_t)1;                     /* event successfully posted */
+        return (uintX_t)1;                     /* event successfully posted */
     }
     else {
         SST_INT_UNLOCK();
-        return (uint8_t)0;              /* queue full, event posting failed */
+        return (uintX_t)0;              /* queue full, event posting failed */
     }
 }
 /*..........................................................................*/
-uint8_t SST_mutexLock(uint8_t prioCeiling) {
-    uint8_t p;
+uintX_t SST_mutexLock(uintX_t prioCeiling) {
+    uintX_t p;
     SST_INT_LOCK();
     p = SST_currPrio_;               /* the original SST priority to return */
     if (prioCeiling > SST_currPrio_) {
@@ -98,7 +99,7 @@ uint8_t SST_mutexLock(uint8_t prioCeiling) {
     return p;
 }
 /*..........................................................................*/
-void SST_mutexUnlock(uint8_t orgPrio) {
+void SST_mutexUnlock(uintX_t orgPrio) {
     SST_INT_LOCK();
     if (orgPrio < SST_currPrio_) {
         SST_currPrio_ = orgPrio;    /* restore the saved priority to unlock */
@@ -132,14 +133,24 @@ void SST_schedule_(void) {
     //                         /* is the new priority higher than the initial? */
     // while ((p = log2Lkup[SST_readySet_]) > pin) {
 
-    uint8_t i = 128;                             /*iterator*/
-    uint8_t pin = SST_currPrio_;               /* save the initial priority */
-    uint8_t p = 0;                             /* the new priority */
+
+#if nTasks == 8
+    uint8_t iteratorPrior = 128; /*iterator*/
+#elif nTasks == 16
+    uint16_t iteratorPrior = 32768; /*iterator*/
+#elif nTasks == 32
+    uint32_t iteratorPrior = 2147483648L; /*iterator*/
+#elif nTasks == 64
+    uint64_t iteratorPrior = 9223372036854775808L; /*iterator*/
+#endif
+
+    uintX_t pin = SST_currPrio_;               /* save the initial priority */
+    uintX_t p = 0;                             /* the new priority */
     
     if( SST_readySet_ > 0){                     /*there is at least one task*/
         do{
-            p = SST_readySet_ & i;
-            i >>= 1;
+            p = SST_readySet_ & iteratorPrior;
+            iteratorPrior >>= 1;
         }while(p == 0);
    
                               /* is the new priority higher than the initial? */
@@ -148,9 +159,9 @@ void SST_schedule_(void) {
                                               /* get the event out of the queue */
             SSTEvent e = tcb->queue__[tcb->tail__];
             if ((++tcb->tail__) == tcb->end__) {
-                tcb->tail__ = (uint8_t)0;
+                tcb->tail__ = (uintX_t)0;
             }
-            if ((--tcb->nUsed__) == (uint8_t)0) {/* is the queue becoming empty?*/
+            if ((--tcb->nUsed__) == (uintX_t)0) {/* is the queue becoming empty?*/
                 SST_readySet_ &= ~tcb->mask__;     /* remove from the ready set */
             }
             SST_currPrio_ = p;        /* this becomes the current task priority */
