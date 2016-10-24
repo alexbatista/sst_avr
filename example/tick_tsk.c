@@ -22,16 +22,21 @@
 #define BLINK_FAST_DELAY_MS 300
 /*..........................................................................*/
 void tickTaskA(SSTEvent e) {
-    static uint8_t counter = 0;
-    if(counter == 0)
-        PORTB ^= (1 << PORTB5);
-    counter++;
+ // static uint8_t counter = 0;
+ //  if(counter == 0){
+    //     PORTB ^= (1 << PORTB5);
+     PORTB |= (1 << PORTB5);
+ 	// }
+  // counter++;
+     _delay_ms(BLINK_DELAY_MS);
 }
 
 void tickTaskB(SSTEvent e) {
-
-    _delay_ms(BLINK_FAST_DELAY_MS);
-    PORTB |= _BV(PORTB5);
-    _delay_ms(BLINK_FAST_DELAY_MS);
-    PORTB &= ~_BV(PORTB5);
+	// static uint8_t counter2 = 255;
+  // if(counter2 == 0){
+		PORTB &= (~(1 << PORTB5));
+		// counter2 = 255;
+   // }
+   // counter2-=2;
+     _delay_ms(BLINK_DELAY_MS);
 }

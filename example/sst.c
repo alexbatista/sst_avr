@@ -109,43 +109,57 @@ void SST_mutexUnlock(uint8_t orgPrio) {
 /*..........................................................................*/
 /* NOTE: the SST scheduler is entered and exited with interrupts LOCKED */
 void SST_schedule_(void) {
-    static uint8_t const log2Lkup[] = {
-        0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
-        5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-        6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-        6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
-    };
+    // static uint8_t const log2Lkup[] = {
+    //     0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
+    //     5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+    //     6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+    //     6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+    //     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    //     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    //     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    //     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
+    // };
+    //  uint8_t pin = SST_currPrio_;               /* save the initial priority */
+    // uint8_t p;                                           /*the new priority */
+    //                         /* is the new priority higher than the initial? */
+    // while ((p = log2Lkup[SST_readySet_]) > pin) {
+
+    uint8_t i = 128;                             /*iterator*/
     uint8_t pin = SST_currPrio_;               /* save the initial priority */
-    uint8_t p;                                          /* the new priority */
-                            /* is the new priority higher than the initial? */
-    while ((p = log2Lkup[SST_readySet_]) > pin) {
-        TaskCB *tcb  = &l_taskCB[p - 1];
-                                          /* get the event out of the queue */
-        SSTEvent e = tcb->queue__[tcb->tail__];
-        if ((++tcb->tail__) == tcb->end__) {
-            tcb->tail__ = (uint8_t)0;
-        }
-        if ((--tcb->nUsed__) == (uint8_t)0) {/* is the queue becoming empty?*/
-            SST_readySet_ &= ~tcb->mask__;     /* remove from the ready set */
-        }
-        SST_currPrio_ = p;        /* this becomes the current task priority */
-        SST_INT_UNLOCK();                          /* unlock the interrupts */
+    uint8_t p = 0;                             /* the new priority */
+    
+    if( SST_readySet_ > 0){                     /*there is at least one task*/
+        do{
+            p = SST_readySet_ & i;
+            i >>= 1;
+        }while(p == 0);
+   
+                              /* is the new priority higher than the initial? */
+        while (p > pin) {
+            TaskCB *tcb  = &l_taskCB[p - 1];
+                                              /* get the event out of the queue */
+            SSTEvent e = tcb->queue__[tcb->tail__];
+            if ((++tcb->tail__) == tcb->end__) {
+                tcb->tail__ = (uint8_t)0;
+            }
+            if ((--tcb->nUsed__) == (uint8_t)0) {/* is the queue becoming empty?*/
+                SST_readySet_ &= ~tcb->mask__;     /* remove from the ready set */
+            }
+            SST_currPrio_ = p;        /* this becomes the current task priority */
+            SST_INT_UNLOCK();                          /* unlock the interrupts */
 
-        (*tcb->task__)(e);                             /* call the SST task */
+            (*tcb->task__)(e);                             /* call the SST task */
 
-        SST_INT_LOCK();            /* lock the interrupts for the next pass */
+            SST_INT_LOCK();            /* lock the interrupts for the next pass */
+        }
+        SST_currPrio_ = pin;                    /* restore the initial priority */
     }
-    SST_currPrio_ = pin;                    /* restore the initial priority */
 }

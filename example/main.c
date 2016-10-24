@@ -27,6 +27,7 @@ static SSTEvent tickTaskBQueue[2];
 // static SSTEvent kbdTaskQueue[2];
 
 // static uint32_t l_delayCtr = 0UL;
+static uint8_t flag = 0;
 
 // ********************************************************************************
 // Interrupt Routines
@@ -38,8 +39,16 @@ ISR(TIMER0_OVF_vect) {
     /* Toggle a pin on timer overflow */
     // PORTB ^= (1 << PORTB5);
     uint8_t pin;
+
     SST_ISR_ENTRY(pin, TICK_ISR_PRIO);
-    SST_post(TICK_TASK_A_PRIO, TICK_SIG, 0);     /* post the Tick to Task A */
+
+    if(flag == 0){
+        SST_post(TICK_TASK_A_PRIO, TICK_SIG, 0);     /* post the Tick to Task A */
+        flag = 1;
+    }else{
+        SST_post(TICK_TASK_B_PRIO, TICK_SIG, 0);     /* post the Tick to Task B */
+        flag = 0;
+    }
     SST_ISR_EXIT(pin,pin);
 }
 
@@ -55,13 +64,13 @@ ISR(TIMER0_OVF_vect) {
 
 /*..........................................................................*/
 int main(int argc, char *argv[]) {
-   
+    
     /* Timer clock = I/O clock / 1024 */
-     TCCR0B = (1<<CS02)|(1<<CS00);
+    TCCR0B = (1<<CS02)|(1<<CS00);
      /* Clear overflow flag */
-     TIFR0 = 1<<TOV0;
+    TIFR0 = 1<<TOV0;
      /* Enable Overflow Interrupt */
-     TIMSK0 = 1<<TOIE0;
+    TIMSK0 = 1<<TOIE0;
 
     /* set pin 5 of PORTB for output*/
     DDRB |= _BV(DDB5);
@@ -72,9 +81,9 @@ int main(int argc, char *argv[]) {
             tickTaskAQueue, sizeof(tickTaskAQueue)/sizeof(tickTaskAQueue[0]),
             INIT_SIG, 0);
 
-    // SST_task(&tickTaskB, TICK_TASK_B_PRIO,
-    //         tickTaskBQueue, sizeof(tickTaskBQueue)/sizeof(tickTaskBQueue[0]),
-    //         INIT_SIG, 0);
+    SST_task(&tickTaskB, TICK_TASK_B_PRIO,
+            tickTaskBQueue, sizeof(tickTaskBQueue)/sizeof(tickTaskBQueue[0]),
+            INIT_SIG, 0);
 
     // SST_task(&kbdTask, KBD_TASK_PRIO,
     //          kbdTaskQueue, sizeof(kbdTaskQueue)/sizeof(kbdTaskQueue[0]),

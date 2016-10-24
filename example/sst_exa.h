@@ -28,7 +28,7 @@ enum Events {                         /* the events used in the application */
 
 enum SSTPriorities {     /* the SST priorities don't need to be consecutive */
     /* task priorities... */
-    TICK_TASK_A_PRIO = 2,
+    TICK_TASK_A_PRIO = 3,
     //KBD_TASK_PRIO    = 5,
     TICK_TASK_B_PRIO = 7,
 
