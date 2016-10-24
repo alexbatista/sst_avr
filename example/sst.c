@@ -132,8 +132,6 @@ void SST_schedule_(void) {
     // uint8_t p;                                           /*the new priority */
     //                         /* is the new priority higher than the initial? */
     // while ((p = log2Lkup[SST_readySet_]) > pin) {
-
-
 #if nTasks == 8
     uint8_t iteratorPrior = 128; /*iterator*/
 #elif nTasks == 16
@@ -143,6 +141,7 @@ void SST_schedule_(void) {
 #elif nTasks == 64
     uint64_t iteratorPrior = 9223372036854775808L; /*iterator*/
 #endif
+
 
     uintX_t pin = SST_currPrio_;               /* save the initial priority */
     uintX_t p = 0;                             /* the new priority */

@@ -16,7 +16,8 @@
 *****************************************************************************/
 #include "sst_port.h"
 #include "sst_exa.h"
-
+#include "queue.h"
+#include <stdlib.h>
 //#include "bsp.h"
 
 // #include <stdlib.h>                                           /* for atol() */
@@ -65,6 +66,7 @@ ISR(TIMER0_OVF_vect) {
 /*..........................................................................*/
 int main(int argc, char *argv[]) {
     
+    Queue *pQ = ConstructQueue(7);
     /* Timer clock = I/O clock / 1024 */
     TCCR0B = (1<<CS02)|(1<<CS00);
      /* Clear overflow flag */
@@ -76,6 +78,10 @@ int main(int argc, char *argv[]) {
     DDRB |= _BV(DDB5);
 
     // SST_init();                                       /* initialize the SST */
+    NODE *pN =  malloc(sizeof (NODE));
+    
+    pN->task = &tickTaskA;
+    Enqueue(pQ, pN);
 
     SST_task(&tickTaskA, TICK_TASK_A_PRIO,
             tickTaskAQueue, sizeof(tickTaskAQueue)/sizeof(tickTaskAQueue[0]),
@@ -96,3 +102,15 @@ int main(int argc, char *argv[]) {
 void SST_onIdle(){
 
 }
+
+// int main() {
+
+
+//     while (!isEmpty(pQ)) {
+//         pN = Dequeue(pQ);
+//         printf("\nDequeued: %d", pN->data);
+//         free(pN);
+//     }
+//     DestructQueue(pQ);
+//     return (EXIT_SUCCESS);
+// }
