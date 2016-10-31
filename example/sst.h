@@ -18,20 +18,24 @@
 #define sst_h
 
 
-#define nTasks 32
+#define nTasks 64
 
 #if nTasks == 8
     typedef uint8_t uintX_t;
     #define ITERATORPRIOR 128
+    #define SST_MAX_PRIO     8
 #elif nTasks == 16
     typedef uint16_t uintX_t;
     #define ITERATORPRIOR 32768
+    #define SST_MAX_PRIO     16
 #elif nTasks == 32
     typedef uint32_t uintX_t;
     #define ITERATORPRIOR  2147483648L
+    #define SST_MAX_PRIO     32
 #elif nTasks == 64
     typedef uint64_t uintX_t;
     #define ITERATORPRIOR 9223372036854775808L
+    #define SST_MAX_PRIO     64
 #endif
 
 

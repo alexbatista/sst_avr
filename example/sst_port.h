@@ -24,7 +24,7 @@
 #define SST_INT_LOCK()   cli()
 #define SST_INT_UNLOCK() sei()
                                                /* maximum SST task priority */
-#define SST_MAX_PRIO     8
+// #define SST_MAX_PRIO     8
 
 #include "sst.h"                      /* SST platform-independent interface */
 
