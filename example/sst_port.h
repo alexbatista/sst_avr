@@ -20,7 +20,6 @@
 
 #include <avr/interrupt.h>                                       /* SST interrupt locking/unlocking */
 #include <avr/io.h>
-
 #define SST_INT_LOCK()   cli()
 #define SST_INT_UNLOCK() sei()
                                                /* maximum SST task priority */

@@ -16,27 +16,48 @@
 *****************************************************************************/
 #include "sst_port.h"
 #include "sst_exa.h"
+#include "queue.h"
+// #include "shared.h"
 #include <util/delay.h>
+#include <stdlib.h>
 
 #define BLINK_DELAY_MS 2000
 #define BLINK_FAST_DELAY_MS 300
+
+
 /*..........................................................................*/
 void tickTaskA(SSTEvent e) {
- // static uint8_t counter = 0;
- //  if(counter == 0){
-    //     PORTB ^= (1 << PORTB5);
-     PORTB |= (1 << PORTB5);
- 	// }
-  // counter++;
-     _delay_ms(BLINK_DELAY_MS);
+	uint8_t exec = do_sem_down(s,TICK_TASK_A_PRIO);
+	if(s->counter >= 0){
+		NODE *n = Dequeue(pQ);
+		if(n != NULL){
+			// PORTB |= n->info;
+		 //  _delay_ms(BLINK_DELAY_MS);
+	  }
+		PORTB |= (1 << PORTB5); //teste
+		_delay_ms(BLINK_DELAY_MS);//teste
+		// NODE *node = malloc(sizeof(NODE));
+		// node->info = (~(1 << PORTB5));
+		// node->toPrior = TICK_TASK_B_PRIO;
+		// Enqueue(pQ,node);
+		// do_sem_up(s);
+	}
 }
 
 void tickTaskB(SSTEvent e) {
-	// static uint8_t counter2 = 255;
-  // if(counter2 == 0){
+	uint8_t exec = do_sem_down(s,TICK_TASK_B_PRIO);
+	if(s->counter >= 0){
+		NODE *n = Dequeue(pQ);
+		if(n != NULL){
+			// PORTB &= n->info;
+		 //  _delay_ms(BLINK_DELAY_MS);
+		}
 		PORTB &= (~(1 << PORTB5));
-		// counter2 = 255;
-   // }
-   // counter2-=2;
-     _delay_ms(BLINK_DELAY_MS);
+		_delay_ms(BLINK_DELAY_MS);
+		// NODE *node = malloc(sizeof(NODE));
+		// node->info = (1 << PORTB5);
+		// node->toPrior = TICK_TASK_A_PRIO;
+		// Enqueue(pQ,node);
+		// do_sem_up(s);
+	}
 }

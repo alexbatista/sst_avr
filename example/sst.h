@@ -14,6 +14,7 @@
 * Email:    miro@quantum-leaps.com
 * Internet: www.quantum-leaps.com
 *****************************************************************************/
+#include <stdint.h>                 /* exact-width integer types, ANSI C'99 */
 #ifndef sst_h
 #define sst_h
 
@@ -30,18 +31,17 @@
     #define SST_MAX_PRIO     16
 #elif nTasks == 32
     typedef uint32_t uintX_t;
-    #define ITERATORPRIOR  2147483648L
+    #define ITERATORPRIOR  2147483648UL
     #define SST_MAX_PRIO     32
 #elif nTasks == 64
     typedef uint64_t uintX_t;
-    #define ITERATORPRIOR 9223372036854775808L
+    #define ITERATORPRIOR 9223372036854775808UL
     #define SST_MAX_PRIO     64
 #endif
 
 
 
 
-#include <stdint.h>                 /* exact-width integer types, ANSI C'99 */
 
 typedef uintX_t SSTSignal;
 typedef uintX_t SSTParam;

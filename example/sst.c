@@ -16,7 +16,6 @@
 *****************************************************************************/
 #include "sst_port.h"
 
-
 /* Public-scope objects ----------------------------------------------------*/
 uintX_t SST_currPrio_ = (uintX_t)0xFF;              /* current SST priority */
 uintX_t SST_readySet_ = (uintX_t)0;                        /* SST ready-set */
@@ -87,55 +86,13 @@ uintX_t SST_post(uintX_t prio, SSTSignal sig, SSTParam par) {
         return (uintX_t)0;              /* queue full, event posting failed */
     }
 }
-/*..........................................................................*/
-uintX_t SST_mutexLock(uintX_t prioCeiling) {
-    uintX_t p;
-    SST_INT_LOCK();
-    p = SST_currPrio_;               /* the original SST priority to return */
-    if (prioCeiling > SST_currPrio_) {
-        SST_currPrio_ = prioCeiling;              /* raise the SST priority */
-    }
-    SST_INT_UNLOCK();
-    return p;
-}
-/*..........................................................................*/
-void SST_mutexUnlock(uintX_t orgPrio) {
-    SST_INT_LOCK();
-    if (orgPrio < SST_currPrio_) {
-        SST_currPrio_ = orgPrio;    /* restore the saved priority to unlock */
-        SST_schedule_();    /* invoke scheduler after lowering the priority */
-    }
-    SST_INT_UNLOCK();
-}
+
+
 /*..........................................................................*/
 /* NOTE: the SST scheduler is entered and exited with interrupts LOCKED */
 void SST_schedule_(void) {
-    // static uint8_t const log2Lkup[] = {
-    //     0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
-    //     5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-    //     6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-    //     6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-    //     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    //     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    //     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    //     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    //     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
-    // };
-    //  uint8_t pin = SST_currPrio_;               /* save the initial priority */
-    // uint8_t p;                                           /*the new priority */
-    //                         /* is the new priority higher than the initial? */
-    // while ((p = log2Lkup[SST_readySet_]) > pin) {
-
 
     uintX_t iteratorPrior = ITERATORPRIOR;
-
     uintX_t pin = SST_currPrio_;               /* save the initial priority */
     uintX_t p = 0;                             /* the new priority */
     
@@ -166,10 +123,10 @@ void SST_schedule_(void) {
             do{
                 p = SST_readySet_ & iteratorPrior;
                 iteratorPrior >>= 1;
-            }while(p == 0 || iteratorPrior != 0);
+            }while(p == 0 && iteratorPrior > 0);
             //ATUALIZANDO O VALOR DE P BASEADO NO NOVO SST_readSet, 
             //visto que é necessário que o SST execute a mais nova tarefa de maior prioridade. 
-            //No origial era p[SST_readySet_]
+            //No original era p[SST_readySet_]
         }
 
         SST_currPrio_ = pin;                    /* restore the initial priority */
