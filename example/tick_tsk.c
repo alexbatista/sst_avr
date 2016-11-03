@@ -27,37 +27,37 @@
 
 /*..........................................................................*/
 void tickTaskA(SSTEvent e) {
-	uint8_t exec = do_sem_down(s,TICK_TASK_A_PRIO);
-	if(s->counter >= 0){
-		NODE *n = Dequeue(pQ);
-		if(n != NULL){
+	uint8_t exec = do_sem_down(&s,TICK_TASK_A_PRIO);
+	if(exec == OK){
+		// NODE *n = Dequeue(pQ);
+		// if(n != NULL){
 			// PORTB |= n->info;
 		 //  _delay_ms(BLINK_DELAY_MS);
-	  }
+	  // }
 		PORTB |= (1 << PORTB5); //teste
 		_delay_ms(BLINK_DELAY_MS);//teste
 		// NODE *node = malloc(sizeof(NODE));
 		// node->info = (~(1 << PORTB5));
 		// node->toPrior = TICK_TASK_B_PRIO;
 		// Enqueue(pQ,node);
-		// do_sem_up(s);
+		do_sem_up(&s);
 	}
 }
 
 void tickTaskB(SSTEvent e) {
-	uint8_t exec = do_sem_down(s,TICK_TASK_B_PRIO);
-	if(s->counter >= 0){
-		NODE *n = Dequeue(pQ);
-		if(n != NULL){
+	uint8_t exec = do_sem_down(&s,TICK_TASK_B_PRIO);
+	if(exec == OK){
+		// NODE *n = Dequeue(pQ);
+		// if(n != NULL){
 			// PORTB &= n->info;
 		 //  _delay_ms(BLINK_DELAY_MS);
-		}
+		// }
 		PORTB &= (~(1 << PORTB5));
 		_delay_ms(BLINK_DELAY_MS);
 		// NODE *node = malloc(sizeof(NODE));
 		// node->info = (1 << PORTB5);
 		// node->toPrior = TICK_TASK_A_PRIO;
 		// Enqueue(pQ,node);
-		// do_sem_up(s);
+		do_sem_up(&s);
 	}
 }

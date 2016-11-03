@@ -31,7 +31,7 @@ static SSTEvent tickTaskBQueue[2];
 // static uint32_t l_delayCtr = 0UL;
 static uint8_t flag = 0;
 Queue *pQ; 
-Semaphore *s;
+Semaphore s;
 // ********************************************************************************
 // Interrupt Routines
 // ********************************************************************************
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 
 
     pQ = ConstructQueue(7);
-    s = ConstructSemaphore();
+    s = ConstructSemaphore(1);
     // pQ->s = s;
     /* Timer clock = I/O clock / 1024 */
     TCCR0B = (1<<CS02)|(1<<CS00);

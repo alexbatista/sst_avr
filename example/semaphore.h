@@ -1,4 +1,8 @@
 #include "sst.h"
+#include <stdint.h> 
+#define NULL_ERROR 0
+#define BUSY 1
+#define OK 2
 
 typedef struct Semaphore_t
 {
@@ -6,9 +10,10 @@ typedef struct Semaphore_t
 	uintX_t tasksWaiting;
 } Semaphore;
 
-Semaphore* ConstructSemaphore();
-// uint8_t do_sem_init(Semaphore *s);
-uint8_t do_sem_down(Semaphore *s, uintX_t prior);
-uint8_t do_sem_up(Semaphore *s);
 
-extern 	Semaphore *s;
+Semaphore ConstructSemaphore(int8_t c);
+// uint8_t do_sem_init(Semaphore *s);
+uint8_t do_sem_down(Semaphore *sem, uintX_t prior);
+uint8_t do_sem_up(Semaphore *sem);
+
+extern 	Semaphore s;
