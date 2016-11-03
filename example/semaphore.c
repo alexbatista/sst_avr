@@ -4,7 +4,7 @@
 #include "sst_port.h"
 
 /*https://github.com/shervinshaikh/minix/blob/master/semaphore.c*/
-
+/*http://stackoverflow.com/questions/330793/how-to-initialize-a-struct-in-accordance-with-c-programming-language-standards*/
 Semaphore ConstructSemaphore(int8_t c){
 	Semaphore sem = { .counter = c, .tasksWaiting = 0};
 	// sem.tasksWaiting = 0;
