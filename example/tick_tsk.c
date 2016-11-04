@@ -30,14 +30,9 @@ void tickTaskA(SSTEvent e) {
 	uint8_t exec = do_sem_down(&s,TICK_TASK_A_PRIO);
 	if(exec == OK){
 		NODE *nA = Dequeue(&pQ);
-		// NODE nodeA = {.info = (~(1 << PORTB5)), .toPrior = TICK_TASK_B_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
 		if(nA !=NULL){
-			// if(nA->toPrior == TICK_TASK_B_PRIO){
 				PORTB |= nA->info;
 			  _delay_ms(BLINK_DELAY_MS);
-			// PORTB |= (1 << PORTB5); //teste
-			// _delay_ms(BLINK_DELAY_MS);//teste
-		  // }
 		}
 		NODE nodeA = {.info = (~(1 << PORTB5)), .toPrior = TICK_TASK_B_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
 		Enqueue(&pQ,&nodeA);
@@ -50,12 +45,8 @@ void tickTaskB(SSTEvent e) {
 	if(exec == OK){
 		NODE *nB = Dequeue(&pQ);
 		if(nB !=NULL && nB->info == (~(1 << PORTB5))){
-			// if(nB->toPrior == TICK_TASK_B_PRIO){
 				PORTB &= nB->info;
 			  _delay_ms(BLINK_DELAY_MS);
-			// PORTB &= (~(1 << PORTB5));
-			// _delay_ms(BLINK_DELAY_MS);
-			// }
 		}
 		NODE nodeB = {.info = (1 << PORTB5), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
 		Enqueue(&pQ,&nodeB);
