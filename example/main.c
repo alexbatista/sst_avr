@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
     DDRB |= _BV(DDB5);
 
     //Inicializando a fila com algum nó
-    NODE node = {.info = (1 << PORTB5), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
+    NODE node = {.info = (1 << PORTB5), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev =&(NODE){} }}; //[1]
     Enqueue(&pQ,&node);
 
     // SST_init();                                       /* initialize the SST */
