@@ -2,23 +2,23 @@
 #include "queue.h"
 
 Queue ConstructQueue(int lim) {
-    Queue queue = { .limit = lim, .size = 0, .head ={}, .tail ={}}; //info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))
+    Queue queue = { .limit = lim, .size = 0, .head =&(NODE){}, .tail =&(NODE){}}; //info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))
 
     return queue;
 }
 
 void DestructQueue(Queue *queue) {
-    NODE pN;
+    NODE *pN;
     while (!isEmpty(queue)) {
         pN = Dequeue(queue);
-        free(&pN);
+        free(pN);
     }
-    free(&queue);
+    free(queue);
 }
 
-int Enqueue(Queue *pQueue, NODE item) {
+int Enqueue(Queue *pQueue, NODE *item) {
     /* Bad parameter */
-    if ((pQueue == NULL) || (&item == NULL)) {
+    if ((pQueue == NULL) || (item == NULL)) {
         return FALSE;
     }
     // if(pQueue->limit != 0)
@@ -34,19 +34,19 @@ int Enqueue(Queue *pQueue, NODE item) {
 
     } else {
         /*adding item to the end of the queue*/
-        pQueue->tail.prev = &item;
+        pQueue->tail->prev = item;
         pQueue->tail = item;
     }
     pQueue->size++;
     return TRUE;
 }
 
-NODE Dequeue(Queue *pQueue) {
+NODE *Dequeue(Queue *pQueue) {
     /*the queue is empty or bad param*/
-    // if (isEmpty(pQueue))
-    //     return NULL;
-    NODE item = pQueue->head;
-    pQueue->head = *(pQueue->head.prev);
+    if (isEmpty(pQueue))
+        return NULL;
+    NODE *item = pQueue->head;
+    pQueue->head = pQueue->head->prev;
     pQueue->size--;
     return item;
 }

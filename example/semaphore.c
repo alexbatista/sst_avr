@@ -42,10 +42,9 @@ uint8_t do_sem_up(Semaphore *sem){
             iteratorPrior >>= 1;
         }while(p == 0);
         sem->tasksWaiting &= ~iteratorPrior;
-		uint8_t pin;
-	    SST_ISR_ENTRY(pin, TICK_ISR_PRIO);
+		SST_INT_LOCK();
 		SST_post(p,TICK_SIG,0);
-		SST_ISR_EXIT(pin,pin);
+		SST_INT_UNLOCK();
 	}
 
 	return OK;

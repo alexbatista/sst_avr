@@ -87,6 +87,10 @@ int main(int argc, char *argv[]) {
     /* set pin 5 of PORTB for output*/
     DDRB |= _BV(DDB5);
 
+    //Inicializando a fila com alguma tarefa
+    NODE node = {.info = (1 << PORTB5), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
+    Enqueue(&pQ,&node);
+
     // SST_init();                                       /* initialize the SST */
     SST_task(&tickTaskA, TICK_TASK_A_PRIO,
             tickTaskAQueue, sizeof(tickTaskAQueue)/sizeof(tickTaskAQueue[0]),
