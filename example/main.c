@@ -30,7 +30,7 @@ static SSTEvent tickTaskBQueue[2];
 
 // static uint32_t l_delayCtr = 0UL;
 static uint8_t flag = 0;
-Queue *pQ; 
+Queue pQ; 
 Semaphore s;
 // ********************************************************************************
 // Interrupt Routines

@@ -24,22 +24,21 @@
 #define BLINK_DELAY_MS 2000
 #define BLINK_FAST_DELAY_MS 300
 
-
+/*[1] http://stackoverflow.com/questions/11709929/how-to-initialize-a-pointer-to-a-struct-in-c*/
 /*..........................................................................*/
 void tickTaskA(SSTEvent e) {
 	uint8_t exec = do_sem_down(&s,TICK_TASK_A_PRIO);
 	if(exec == OK){
-		// NODE *n = Dequeue(pQ);
-		// if(n != NULL){
+		NODE nA = Dequeue(&pQ);
+		// NODE nodeA = {.info = (~(1 << PORTB5)), .toPrior = TICK_TASK_B_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
+		if(nA.toPrior == TICK_TASK_B_PRIO){
 			// PORTB |= n->info;
 		 //  _delay_ms(BLINK_DELAY_MS);
-	  // }
 		PORTB |= (1 << PORTB5); //teste
 		_delay_ms(BLINK_DELAY_MS);//teste
-		// NODE *node = malloc(sizeof(NODE));
-		// node->info = (~(1 << PORTB5));
-		// node->toPrior = TICK_TASK_B_PRIO;
-		// Enqueue(pQ,node);
+	  }
+		NODE nodeA = {.info = (~(1 << PORTB5)), .toPrior = TICK_TASK_B_PRIO, .prev=&(NODE){}}; //[1]
+		Enqueue(&pQ,nodeA);
 		do_sem_up(&s);
 	}
 }
@@ -47,17 +46,15 @@ void tickTaskA(SSTEvent e) {
 void tickTaskB(SSTEvent e) {
 	uint8_t exec = do_sem_down(&s,TICK_TASK_B_PRIO);
 	if(exec == OK){
-		// NODE *n = Dequeue(pQ);
-		// if(n != NULL){
+		NODE nB = Dequeue(&pQ);
+		if(nB.toPrior == TICK_TASK_A_PRIO || nB.toPrior == TICK_TASK_B_PRIO){
 			// PORTB &= n->info;
 		 //  _delay_ms(BLINK_DELAY_MS);
-		// }
 		PORTB &= (~(1 << PORTB5));
 		_delay_ms(BLINK_DELAY_MS);
-		// NODE *node = malloc(sizeof(NODE));
-		// node->info = (1 << PORTB5);
-		// node->toPrior = TICK_TASK_A_PRIO;
-		// Enqueue(pQ,node);
+		}
+		NODE nodeB = {.info = (1 << PORTB5), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){}}; //[1]
+		Enqueue(&pQ,nodeB);
 		do_sem_up(&s);
 	}
 }

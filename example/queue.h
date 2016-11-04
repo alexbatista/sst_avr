@@ -19,19 +19,19 @@ typedef struct Node_t {
 
 /* the HEAD of the Queue, hold the amount of node's that are in the queue*/
 typedef struct Queue {
-	Semaphore *s;
-    NODE *head;
-    NODE *tail;
+	// Semaphore s;
+    NODE head;
+    NODE tail;
     int size;
     int limit;
 } Queue;
 
-Queue *ConstructQueue(int limit);
+Queue ConstructQueue(int limit);
 void DestructQueue(Queue *queue);
-int Enqueue(Queue *pQueue, NODE *item);
-NODE *Dequeue(Queue *pQueue);
-int isEmpty(Queue* pQueue);
+int Enqueue(Queue *pQueue, NODE item);
+NODE Dequeue(Queue *pQueue);
+int isEmpty(Queue *pQueue);
 
 //http://stackoverflow.com/questions/3010647/shared-global-variables-in-c
 //http://stackoverflow.com/questions/1433204/how-do-i-use-extern-to-share-variables-between-source-files-in-c
-extern  Queue *pQ;
+extern  Queue pQ;
