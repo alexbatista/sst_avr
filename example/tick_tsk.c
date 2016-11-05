@@ -27,7 +27,7 @@
 /*[1] http://stackoverflow.com/questions/11709929/how-to-initialize-a-pointer-to-a-struct-in-c*/
 /*..........................................................................*/
 void tickTaskA(SSTEvent e) {
-	uint8_t exec = do_sem_down(&s,TICK_TASK_A_PRIO);
+	uint8_t exec = do_sem_down(&(pQ.s),TICK_TASK_A_PRIO);
 	if(exec == OK){
 		NODE *nA = Dequeue(&pQ);
 		if(nA !=NULL){
@@ -36,12 +36,12 @@ void tickTaskA(SSTEvent e) {
 		}
 		NODE nodeA = {.info = (~(1 << PORTB5)), .toPrior = TICK_TASK_B_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
 		Enqueue(&pQ,&nodeA);
-		do_sem_up(&s);
+		do_sem_up(&(pQ.s));
 	}
 }
 
 void tickTaskB(SSTEvent e) {
-	uint8_t exec = do_sem_down(&s,TICK_TASK_B_PRIO);
+	uint8_t exec = do_sem_down(&(pQ.s),TICK_TASK_B_PRIO);
 	if(exec == OK){
 		NODE *nB = Dequeue(&pQ);
 		if(nB !=NULL && nB->info == (~(1 << PORTB5))){
@@ -50,6 +50,6 @@ void tickTaskB(SSTEvent e) {
 		}
 		NODE nodeB = {.info = (1 << PORTB5), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
 		Enqueue(&pQ,&nodeB);
-		do_sem_up(&s);
+		do_sem_up(&(pQ.s));
 	}
 }

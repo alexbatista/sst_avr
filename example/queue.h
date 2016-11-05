@@ -19,14 +19,14 @@ typedef struct Node_t {
 
 /* the HEAD of the Queue, hold the amount of node's that are in the queue*/
 typedef struct Queue {
-	// Semaphore s;
+	Semaphore s;
     NODE *head;
     NODE *tail;
     int size;
     int limit;
 } Queue;
 
-Queue ConstructQueue(int limit);
+Queue ConstructQueue(int limit, int sizeSemaphore);
 void DestructQueue(Queue *queue);
 int Enqueue(Queue *pQueue, NODE *item);
 NODE *Dequeue(Queue *pQueue);

@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include "queue.h"
 
-Queue ConstructQueue(int lim) {
-    Queue queue = { .limit = lim, .size = 0, .head =&(NODE){}, .tail =&(NODE){}}; //info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))
+Queue ConstructQueue(int lim, int sizeSemaphore) {
+    Queue queue = { .limit = lim, .size = 0, .s = {.counter = sizeSemaphore}, .head =&(NODE){}, .tail =&(NODE){}}; //info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))
 
     return queue;
 }

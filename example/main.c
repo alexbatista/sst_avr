@@ -17,21 +17,14 @@
 #include "sst_port.h"
 #include "sst_exa.h"
 #include "queue.h"
-// #include "shared.h"
-// #include <stdlib.h>
-//#include "bsp.h"
 
-// #include <stdlib.h>                                           /* for atol() */
 
-//static void setupScreen(void);
 static SSTEvent tickTaskAQueue[2];
 static SSTEvent tickTaskBQueue[2];
-// static SSTEvent kbdTaskQueue[2];
 
-// static uint32_t l_delayCtr = 0UL;
 static uint8_t flag = 0;
 Queue pQ; 
-Semaphore s;
+
 // ********************************************************************************
 // Interrupt Routines
 // ********************************************************************************
@@ -74,9 +67,8 @@ ISR(TIMER0_OVF_vect) {
 int main(int argc, char *argv[]) {
 
 
-    pQ = ConstructQueue(7);
-    s = ConstructSemaphore(1);
-    // pQ->s = s;
+    pQ = ConstructQueue(7,1);
+ 
     /* Timer clock = I/O clock / 1024 */
     TCCR0B = (1<<CS02)|(1<<CS00);
      /* Clear overflow flag */
@@ -100,10 +92,6 @@ int main(int argc, char *argv[]) {
             tickTaskBQueue, sizeof(tickTaskBQueue)/sizeof(tickTaskBQueue[0]),
             INIT_SIG, 0);
 
-
-    // SST_task(&kbdTask, KBD_TASK_PRIO,
-    //          kbdTaskQueue, sizeof(kbdTaskQueue)/sizeof(kbdTaskQueue[0]),
-    //          INIT_SIG, 0);
 
     SST_run();                                   /* run the SST application */
     return 0;
