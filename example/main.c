@@ -16,7 +16,8 @@
 *****************************************************************************/
 #include "sst_port.h"
 #include "sst_exa.h"
-#include "queue.h"
+// #include "queue.h"
+#include "mailbox.h"
 // #include "shared.h"
 // #include <stdlib.h>
 //#include "bsp.h"
@@ -30,8 +31,8 @@ static SSTEvent tickTaskBQueue[2];
 
 // static uint32_t l_delayCtr = 0UL;
 static uint8_t flag = 0;
-Queue pQ; 
-Semaphore s;
+
+MailBox mb;
 // ********************************************************************************
 // Interrupt Routines
 // ********************************************************************************
@@ -73,10 +74,8 @@ ISR(TIMER0_OVF_vect) {
 /*..........................................................................*/
 int main(int argc, char *argv[]) {
 
+    mb = ConstructMailBox();
 
-    pQ = ConstructQueue(7);
-    s = ConstructSemaphore(1);
-    // pQ->s = s;
     /* Timer clock = I/O clock / 1024 */
     TCCR0B = (1<<CS02)|(1<<CS00);
      /* Clear overflow flag */
@@ -87,9 +86,8 @@ int main(int argc, char *argv[]) {
     /* set pin 5 of PORTB for output*/
     DDRB |= _BV(DDB5);
 
-    //Inicializando a fila com algum nó
-    NODE node = {.info = (1 << PORTB5), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev =&(NODE){} }}; //[1]
-    Enqueue(&pQ,&node);
+    //Initializing mailbox
+    put(&mb,(1 << PORTB5));
 
     // SST_init();                                       /* initialize the SST */
     SST_task(&tickTaskA, TICK_TASK_A_PRIO,
