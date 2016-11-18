@@ -17,6 +17,7 @@
 #include "sst_port.h"
 #include "sst_exa.h"
 #include "queue.h"
+#include "../include/netif/ppp/pppoe.h"
 
 
 static SSTEvent tickTaskAQueue[2];
@@ -66,6 +67,7 @@ ISR(TIMER0_OVF_vect) {
 /*..........................................................................*/
 int main(int argc, char *argv[]) {
 
+    ppp = pppoe_create(&ppp_netif,&ethif,service_name, concentrator_name,status_cb, ctx_cb);
 
     pQ = ConstructQueue(7,1);
  
