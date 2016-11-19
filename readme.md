@@ -1,6 +1,5 @@
 # Super Simple Task on AVR
 #### INSTITUTO DE COMPUTAÇÃO - UNIVERSIDADE FEDERAL DE ALAGOAS
-[![N|Solid](https://cldup.com/dTxpPi9lDf.thumb.png)](https://nodesource.com/products/nsolid)
 
 ##### Dependências:
 
