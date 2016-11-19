@@ -10,8 +10,10 @@
 
 * Os exemplos foram testados no ATMEGA328P (microcontrolador utilizado no arduino uno).
 * Cada branch contém uma implementação específica de acordo com a feature requerida de modo a estender as características básicas(padrões) do SST.
+
 ##### Branch 64tasks
 A branch ```64tasks``` contém o código que permite em tempo de compilação selecionar o número máximo de tasks que o SST poderá gerenciar. Contém 2 tarefas A e B, onde a tarefa A acende o Led do arduino UNO e a tarefa B apaga o Led.
+
 ##### Branch mailbox
 A branch ```mailbox``` contém o código que implementa um mailbox com semáforo. Tem-se 2 tarefas. Sempre que uma tarefa deseja utilizar o mailbox, antes ativa o semáforo de modo que o recurso fique bloqueado até a liberação.
 
