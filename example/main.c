@@ -74,7 +74,7 @@ ISR(TIMER0_OVF_vect) {
 int main(int argc, char *argv[]) {
 
 
-  pQ = ConstructQueue(7,1);
+  pQ = ConstructQueue(3,1);
 
   /* Timer clock = I/O clock / 1024 */
    TCCR0B = (1<<CS02)|(1<<CS00);

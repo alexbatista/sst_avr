@@ -53,7 +53,7 @@ NODE *Dequeue(Queue *pQueue) {
 
 int isEmpty(Queue *pQueue) {
     if (pQueue == NULL) {
-        return FALSE;
+        return TRUE;
     }
     if (pQueue->size == 0) {
         return TRUE;
@@ -76,11 +76,11 @@ int isEmpty(Queue *pQueue) {
 //         NODE *other = this->prev;
 //         if (!this->prev) break;
 //         if (this->prior < other->p) continue;
-         
-//         ** Now, Swap this (b) and other (c) 
+
+//         ** Now, Swap this (b) and other (c)
 //         ** old situation: @a -> (b) -> (c) -> (d)
-//         ** new situation: @a -> (c) -> (b) -> (d) 
-        
+//         ** new situation: @a -> (c) -> (b) -> (d)
+
 //         *pp = other;              /* @a  -> (c) */
 //         this->prev = other->prev; /* (b) -> (d) */
 //         other->prev = this;       /* (c) -> (b) */
