@@ -17,8 +17,6 @@
 #include "sst_port.h"
 #include "sst_exa.h"
 #include "queue.h"
-// #include "shared.h"
-#include <util/delay.h>
 #include <stdlib.h>
 
 #define BLINK_DELAY_MS 2000
@@ -55,11 +53,7 @@ void tickTaskB(SSTEvent e) {
         case TICK_SIG: {
 			uint8_t exec = do_sem_down(&s,TICK_TASK_B_PRIO);
 			if(exec == OK){
-				// PORTB &= (~(1 << PORTB5));
 				PORTB ^= (1 << PORTB2); //TOOGLE PORTB
-
-				// _delay_ms(3000);
-				// SST_post(TICK_TASK_B_PRIO,TICK_SIG,0);
 				do_sem_up(&s);
     		}
 			break;
@@ -71,27 +65,12 @@ void tickTaskC(SSTEvent e){
 	switch (e.sig){
 		case INIT_SIG:{
 			PORTB |= (1 << PORTB3);
-
-			// for (i = 0; i < 4; i++)
-			// {
-			// 	PORTB |= (1 << PORTB5);
-			// 	_delay_ms(250);
-			// 	PORTB &= (~(1 << PORTB5));
-			// 	_delay_ms(250);
-			// }
 			break;
 		}
 		case TICK_SIG:{
 			uint8_t exec = do_sem_down(&s,TICK_TASK_C_PRIO);
 			if(exec == OK){
 				PORTB ^= (1 << PORTB3); //TOOGLE PORTB
-				// for (i = 0; i < 4; i++)
-				// {
-				// 	PORTB |= (1 << PORTB5);
-				// 	_delay_ms(250);
-				// 	PORTB &= (~(1 << PORTB5));
-				// 	_delay_ms(250);
-				// }
 				do_sem_up(&s);
     		}
 			break;
