@@ -27,37 +27,74 @@
 
 /*..........................................................................*/
 void tickTaskA(SSTEvent e) {
-	uint8_t exec = do_sem_down(&s,TICK_TASK_A_PRIO);
-	if(exec == OK){
-		// NODE *n = Dequeue(pQ);
-		// if(n != NULL){
-			// PORTB |= n->info;
-		 //  _delay_ms(BLINK_DELAY_MS);
-	  // }
-		PORTB |= (1 << PORTB5); //teste
-		_delay_ms(BLINK_DELAY_MS);//teste
-		// NODE *node = malloc(sizeof(NODE));
-		// node->info = (~(1 << PORTB5));
-		// node->toPrior = TICK_TASK_B_PRIO;
-		// Enqueue(pQ,node);
-		do_sem_up(&s);
-	}
+	switch (e.sig) {
+        case INIT_SIG: {
+	       PORTB |= (1 << PORTB1);
+            break;
+        }
+        case TICK_SIG: {
+    		uint8_t exec = do_sem_down(&s,TICK_TASK_A_PRIO);
+				if(exec == OK){
+					PORTB ^= (1 << PORTB1); //TOOGLE PORTB
+					SST_INT_LOCK();
+					SST_post(TICK_TASK_C_PRIO,TICK_SIG,0);
+					SST_INT_UNLOCK();
+					do_sem_up(&s);
+	    	}
+			break;
+		}
+    }
 }
 
 void tickTaskB(SSTEvent e) {
-	uint8_t exec = do_sem_down(&s,TICK_TASK_B_PRIO);
-	if(exec == OK){
-		// NODE *n = Dequeue(pQ);
-		// if(n != NULL){
-			// PORTB &= n->info;
-		 //  _delay_ms(BLINK_DELAY_MS);
-		// }
-		PORTB &= (~(1 << PORTB5));
-		_delay_ms(BLINK_DELAY_MS);
-		// NODE *node = malloc(sizeof(NODE));
-		// node->info = (1 << PORTB5);
-		// node->toPrior = TICK_TASK_A_PRIO;
-		// Enqueue(pQ,node);
-		do_sem_up(&s);
+	switch (e.sig) {
+        case INIT_SIG: {
+				 PORTB |= (1 << PORTB2);
+            break;
+        }
+        case TICK_SIG: {
+			uint8_t exec = do_sem_down(&s,TICK_TASK_B_PRIO);
+			if(exec == OK){
+				// PORTB &= (~(1 << PORTB5));
+				PORTB ^= (1 << PORTB2); //TOOGLE PORTB
+
+				// _delay_ms(3000);
+				// SST_post(TICK_TASK_B_PRIO,TICK_SIG,0);
+				do_sem_up(&s);
+    		}
+			break;
+    	}
+    }
+}
+void tickTaskC(SSTEvent e){
+	uint8_t i = 0;
+	switch (e.sig){
+		case INIT_SIG:{
+			PORTB |= (1 << PORTB3);
+
+			// for (i = 0; i < 4; i++)
+			// {
+			// 	PORTB |= (1 << PORTB5);
+			// 	_delay_ms(250);
+			// 	PORTB &= (~(1 << PORTB5));
+			// 	_delay_ms(250);
+			// }
+			break;
+		}
+		case TICK_SIG:{
+			uint8_t exec = do_sem_down(&s,TICK_TASK_C_PRIO);
+			if(exec == OK){
+				PORTB ^= (1 << PORTB3); //TOOGLE PORTB
+				// for (i = 0; i < 4; i++)
+				// {
+				// 	PORTB |= (1 << PORTB5);
+				// 	_delay_ms(250);
+				// 	PORTB &= (~(1 << PORTB5));
+				// 	_delay_ms(250);
+				// }
+				do_sem_up(&s);
+    		}
+			break;
+		}
 	}
 }

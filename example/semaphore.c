@@ -2,14 +2,13 @@
 #include <stdlib.h>
 #include "sst_exa.h"
 #include "sst_port.h"
+// #include <util/delay.h>
+#include <math.h>
 
 /*https://github.com/shervinshaikh/minix/blob/master/semaphore.c*/
 /*http://stackoverflow.com/questions/330793/how-to-initialize-a-struct-in-accordance-with-c-programming-language-standards*/
 Semaphore ConstructSemaphore(int8_t c){
-	Semaphore sem = { .counter = c, .tasksWaiting = 0};
-	// sem.tasksWaiting = 0;
-	// sem->counter = (int8_t)c;
-
+	Semaphore sem = (Semaphore){ .counter = c,.tasksWaiting = 0};
 	return sem;
 }
 
@@ -18,35 +17,49 @@ uint8_t do_sem_down(Semaphore *sem, uintX_t prior){
 	if(!sem){
 		return NULL_ERROR;
 	}
-	
-	if(!sem->counter)
-		return NULL_ERROR;
-	
-	sem->counter--;
-	
-	if(sem->counter < 0){ //se counter < 0 não há recurso disponível, jogar tarefa na fila de espera
-		sem->tasksWaiting |= prior;  //põe tarefa na "fila"
-		return BUSY;
+
+	if(sem->counter > 0){
+		sem->counter--;
+		return OK;
 	}
-	return OK;
+
+	sem->tasksWaiting |= (1 << (prior-1));  //põe tarefa na "fila"
+	return BUSY;
+
 }
 
 uint8_t do_sem_up(Semaphore *sem){
+
 	sem->counter++;
-	if(sem->counter <= 0){ //there is any taskPrior waiting for resources?
+	if(sem->tasksWaiting > 0){ //there is any taskPrior waiting for resources?
 		uintX_t p = 0;
 		uintX_t taskPrior = sem->tasksWaiting;
 		uintX_t iteratorPrior = ITERATORPRIOR;
-		 do{
-            p = taskPrior & iteratorPrior;
-            iteratorPrior >>= 1;
-        }while(p == 0);
-        sem->tasksWaiting &= ~iteratorPrior;
-		uint8_t pin;
-	    SST_ISR_ENTRY(pin, TICK_ISR_PRIO);
+
+    while(p == 0){
+      p = taskPrior & iteratorPrior;
+    	if(p == 0) iteratorPrior >>= 1;
+    }
+	  sem->tasksWaiting &= ~iteratorPrior;
+
+		p = log(p)/log(2) +1; //calc log base 2 by ln
+
+		SST_INT_LOCK();
 		SST_post(p,TICK_SIG,0);
-		SST_ISR_EXIT(pin,pin);
+		SST_INT_UNLOCK();
 	}
 
 	return OK;
 }
+//
+// void blinkTest(){
+// 	uint8_t i =0;
+// 	for (i = 0; i < 10; i++)
+// 	{
+// 		_delay_ms(50);
+// 		PORTB |= (1 << PORTB5);
+// 		_delay_ms(50);
+// 		PORTB &= (~(1 << PORTB5));
+//
+// 	}
+// }
