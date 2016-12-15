@@ -28,27 +28,65 @@
 /*[1] http://stackoverflow.com/questions/11709929/how-to-initialize-a-pointer-to-a-struct-in-c*/
 /*..........................................................................*/
 void tickTaskA(SSTEvent e) {
-	uint8_t exec = do_sem_down(&(mb.mutex),TICK_TASK_A_PRIO);
-	if(exec == OK){
-		if(&mb !=NULL){
-				PORTB |= get(&mb);
-			  _delay_ms(BLINK_DELAY_MS);
+	switch (e.sig){
+		case INIT_SIG:{
+			PORTB |= (1 << PORTB1);
+			break;
 		}
-		int msg = (~(1 << PORTB5));
-		put(&mb,msg);
-		do_sem_up(&(mb.mutex));
+		case TICK_SIG:{
+			uint8_t exec = do_sem_down(&(mb.mutex),TICK_TASK_A_PRIO);
+			if(exec == OK){
+				if(!isEmpty(&mb)){
+						PORTB ^= get(&mb);
+				}
+				int msg = (1 << PORTB2);
+				put(&mb,msg);
+				SST_INT_LOCK();
+				SST_post(TICK_TASK_C_PRIO,TICK_SIG,0);
+				SST_INT_UNLOCK();
+				do_sem_up(&(mb.mutex));
+    		}
+			break;
+		}
 	}
 }
-
 void tickTaskB(SSTEvent e) {
-	uint8_t exec = do_sem_down(&(mb.mutex),TICK_TASK_B_PRIO);
-	if(exec == OK){
-		if(&mb !=NULL){
-				PORTB &= get(&mb);
-			  _delay_ms(BLINK_DELAY_MS);
+	switch (e.sig){
+		case INIT_SIG:{
+			PORTB |= (1 << PORTB2);
+			break;
 		}
-		int msg = (1 << PORTB5);
-		put(&mb,msg);
-		do_sem_up(&(mb.mutex));
+		case TICK_SIG:{
+			uint8_t exec = do_sem_down(&(mb.mutex),TICK_TASK_B_PRIO);
+			if(exec == OK){
+				if(!isEmpty(&mb)){
+						PORTB ^= get(&mb);
+				}
+				int msg = (1 << PORTB3);
+				put(&mb,msg);
+				do_sem_up(&(mb.mutex));
+    		}
+			break;
+		}
+	}
+}
+void tickTaskC(SSTEvent e) {
+	switch (e.sig){
+		case INIT_SIG:{
+			PORTB |= (1 << PORTB3);
+			break;
+		}
+		case TICK_SIG:{
+			uint8_t exec = do_sem_down(&(mb.mutex),TICK_TASK_C_PRIO);
+			if(exec == OK){
+				if(!isEmpty(&mb)){
+						PORTB ^= get(&mb);
+				}
+				int msg = (1 << PORTB1);
+				put(&mb,msg);
+				do_sem_up(&(mb.mutex));
+    		}
+			break;
+		}
 	}
 }

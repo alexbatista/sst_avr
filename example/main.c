@@ -27,10 +27,13 @@
 //static void setupScreen(void);
 static SSTEvent tickTaskAQueue[2];
 static SSTEvent tickTaskBQueue[2];
+static SSTEvent tickTaskCQueue[2];
+
 // static SSTEvent kbdTaskQueue[2];
 
 // static uint32_t l_delayCtr = 0UL;
 static uint8_t flag = 0;
+static uint16_t counterInter = 0;
 
 MailBox mb;
 // ********************************************************************************
@@ -42,28 +45,32 @@ MailBox mb;
 ISR(TIMER0_OVF_vect) {
     /* Toggle a pin on timer overflow */
     // PORTB ^= (1 << PORTB5);
-    uint8_t pin;
+    if(counterInter >= 480){ // (3*160) each 3*2,097152 seconds (Frequency internal 20Mhz)
+        uint8_t pin;
+        SST_ISR_ENTRY(pin, TICK_ISR_PRIO);
+        if(flag == 0){
+            flag = 1;
+            SST_post(TICK_TASK_A_PRIO, TICK_SIG, 0);     /* post the Tick to Task A */
+        }else{
+            flag = 0;
+            SST_post(TICK_TASK_B_PRIO, TICK_SIG, 0);     /* post the Tick to Task B */
+        }
+        SST_ISR_EXIT(pin,pin);
 
-    SST_ISR_ENTRY(pin, TICK_ISR_PRIO);
+          /* Clear overflow flag */
+        TIFR0 = 1<<TOV0;
 
-    if(flag == 0){
-        SST_post(TICK_TASK_A_PRIO, TICK_SIG, 0);     /* post the Tick to Task A */
-        flag = 1;
+        counterInter = 0;
     }else{
-        SST_post(TICK_TASK_B_PRIO, TICK_SIG, 0);     /* post the Tick to Task B */
-        flag = 0;
+        counterInter++;
     }
-    SST_ISR_EXIT(pin,pin);
-    
-      /* Clear overflow flag */
-    TIFR0 = 1<<TOV0;
 }
 
 
-// static void interrupt timerISR() {  
+// static void interrupt timerISR() {
 //     SST_ISR_ENTRY(pin, TICK_ISR_PRIO);
 
-//     SST_post(TICK_TASK_A_PRIO, TICK_SIG, 0);      post the Tick to Task A 
+//     SST_post(TICK_TASK_A_PRIO, TICK_SIG, 0);      post the Tick to Task A
 //     // SST_post(TICK_TASK_B_PRIO, TICK_SIG, 0);     /* post the Tick to Task B */
 
 //      SST_INT_LOCK();
@@ -77,17 +84,19 @@ int main(int argc, char *argv[]) {
     mb = ConstructMailBox();
 
     /* Timer clock = I/O clock / 1024 */
-    TCCR0B = (1<<CS02)|(1<<CS00);
-     /* Clear overflow flag */
-    TIFR0 = 1<<TOV0;
-     /* Enable Overflow Interrupt */
-    TIMSK0 = 1<<TOIE0;
+      TCCR0B = (1<<CS02)|(1<<CS00);
+       /* Clear overflow flag */
+      TIFR0 = 1<<TOV0;
+       /* Enable Overflow Interrupt */
+      TIMSK0 = 1<<TOIE0;
 
-    /* set pin 5 of PORTB for output*/
-    DDRB |= _BV(DDB5);
+      /* set pin 5 of PORTB for output (LED FROM ARDUINO IS ON PORTB5)*/
+     //  DDRB |= _BV(DDB5);
+      /*SET PINS 1,2,3 of PORTB for output*/
+      DDRB |= (1<< DDB1) | (1<< DDB2) | (1<< DDB3);
 
     //Initializing mailbox
-    put(&mb,(1 << PORTB5));
+    put(&mb,(1 << PORTB1));
 
     // SST_init();                                       /* initialize the SST */
     SST_task(&tickTaskA, TICK_TASK_A_PRIO,
@@ -97,7 +106,9 @@ int main(int argc, char *argv[]) {
     SST_task(&tickTaskB, TICK_TASK_B_PRIO,
             tickTaskBQueue, sizeof(tickTaskBQueue)/sizeof(tickTaskBQueue[0]),
             INIT_SIG, 0);
-
+    SST_task(&tickTaskC, TICK_TASK_C_PRIO,
+            tickTaskCQueue, sizeof(tickTaskCQueue)/sizeof(tickTaskCQueue[0]),
+            INIT_SIG, 0);
 
     // SST_task(&kbdTask, KBD_TASK_PRIO,
     //          kbdTaskQueue, sizeof(kbdTaskQueue)/sizeof(kbdTaskQueue[0]),

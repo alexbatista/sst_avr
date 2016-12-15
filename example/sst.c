@@ -15,7 +15,7 @@
 * Internet: www.quantum-leaps.com
 *****************************************************************************/
 #include "sst_port.h"
-
+#include <math.h>
 /* Public-scope objects ----------------------------------------------------*/
 uintX_t SST_currPrio_ = (uintX_t)0xFF;              /* current SST priority */
 uintX_t SST_readySet_ = (uintX_t)0;                        /* SST ready-set */
@@ -72,7 +72,7 @@ uintX_t SST_post(uintX_t prio, SSTSignal sig, SSTParam par) {
         tcb->queue__[tcb->head__].sig = sig;/* insert the event at the head */
         tcb->queue__[tcb->head__].par = par;
         if ((++tcb->head__) == tcb->end__) {
-            tcb->head__ = (uintX_t)0;                      /* wrap the head */ 
+            tcb->head__ = (uintX_t)0;                      /* wrap the head */
         }
         if ((++tcb->nUsed__) == (uintX_t)1) {           /* the first event? */ //O QUE ISSO SIGNIFICA?
             SST_readySet_ |= tcb->mask__;   /* insert task to the ready set */
@@ -95,13 +95,13 @@ void SST_schedule_(void) {
     uintX_t iteratorPrior = ITERATORPRIOR;
     uintX_t pin = SST_currPrio_;               /* save the initial priority */
     uintX_t p = 0;                             /* the new priority */
-    
+
     if( SST_readySet_ > 0){                     /*there is at least one task*/
         do{
             p = SST_readySet_ & iteratorPrior;
-            iteratorPrior >>= 1;
-        }while(p == 0);
-   
+            if(p == 0) iteratorPrior >>= 1;
+        }while(p == 0 && iteratorPrior > 0);
+        if(p != 0) p = log(p)/log(2) +1; //calc priority log base 2 by ln
                               /* is the new priority higher than the initial? */
         while (p > pin) {
             TaskCB *tcb  = &l_taskCB[p - 1];
@@ -119,13 +119,15 @@ void SST_schedule_(void) {
             (*tcb->task__)(e);                             /* call the SST task */
 
             SST_INT_LOCK();            /* lock the interrupts for the next pass */
-            
+
+            iteratorPrior = ITERATORPRIOR;
             do{
                 p = SST_readySet_ & iteratorPrior;
-                iteratorPrior >>= 1;
+                if(p == 0) iteratorPrior >>= 1;
             }while(p == 0 && iteratorPrior > 0);
-            //ATUALIZANDO O VALOR DE P BASEADO NO NOVO SST_readSet, 
-            //visto que é necessário que o SST execute a mais nova tarefa de maior prioridade. 
+            if(p != 0) 	p = log(p)/log(2) +1; //calc priority log base 2 by ln
+            //ATUALIZANDO O VALOR DE P BASEADO NO NOVO SST_readSet,
+            //visto que é necessário que o SST execute a mais nova tarefa de maior prioridade.
             //No original era p[SST_readySet_]
         }
 

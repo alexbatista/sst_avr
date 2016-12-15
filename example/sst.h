@@ -19,7 +19,7 @@
 #define sst_h
 
 
-#define nTasks 64
+#define nTasks 8
 
 #if nTasks == 8
     typedef uint8_t uintX_t;

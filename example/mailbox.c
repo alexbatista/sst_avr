@@ -36,16 +36,16 @@ int get(MailBox *mailbox) {
 	int msg = 0;
     if (mailbox->size <= 0)
         return NULL;
-   
+
     mailbox->size--;
     msg = mailbox->msgAvailable;
     mailbox->msgAvailable = NULL;
-	return msg;	
+	return msg;
 }
 
 int isEmpty(MailBox *mailbox) {
     if (mailbox == NULL) {
-        return FALSE;
+        return TRUE;
     }
     if (mailbox->size == 0) {
         return TRUE;
