@@ -27,29 +27,69 @@
 /*[1] http://stackoverflow.com/questions/11709929/how-to-initialize-a-pointer-to-a-struct-in-c*/
 /*..........................................................................*/
 void tickTaskA(SSTEvent e) {
-	uint8_t exec = do_sem_down(&(pQ.s),TICK_TASK_A_PRIO);
-	if(exec == OK){
-		NODE *nA = Dequeue(&pQ);
-		if(nA !=NULL){
-				PORTB |= nA->info;
-			  _delay_ms(BLINK_DELAY_MS);
+	switch (e.sig){
+		case INIT_SIG:{
+			PORTB |= (1 << PORTB1);
+			break;
 		}
-		NODE nodeA = {.info = (~(1 << PORTB5)), .toPrior = TICK_TASK_B_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
-		Enqueue(&pQ,&nodeA);
-		do_sem_up(&(pQ.s));
+		case TICK_SIG:{
+			uint8_t exec = do_sem_down(&(pQ.s),TICK_TASK_A_PRIO);
+			if(exec == OK){
+					NODE *nA = Dequeue(&pQ);
+					if(nA !=NULL){
+						PORTB ^= nA->info;
+					}
+					NODE nodeA = {.info = (1 << PORTB2), .toPrior = TICK_TASK_B_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
+					Enqueue(&pQ,&nodeA);
+					SST_INT_LOCK();
+					SST_post(TICK_TASK_C_PRIO,TICK_SIG,0);
+					SST_INT_UNLOCK();
+					do_sem_up(&(pQ.s));
+    		}
+			break;
+		}
 	}
 }
 
 void tickTaskB(SSTEvent e) {
-	uint8_t exec = do_sem_down(&(pQ.s),TICK_TASK_B_PRIO);
-	if(exec == OK){
-		NODE *nB = Dequeue(&pQ);
-		if(nB !=NULL && nB->info == (~(1 << PORTB5))){
-				PORTB &= nB->info;
-			  _delay_ms(BLINK_DELAY_MS);
+	switch (e.sig){
+		case INIT_SIG:{
+			PORTB |= (1 << PORTB2);
+			break;
 		}
-		NODE nodeB = {.info = (1 << PORTB5), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
-		Enqueue(&pQ,&nodeB);
-		do_sem_up(&(pQ.s));
+		case TICK_SIG:{
+			uint8_t exec = do_sem_down(&(pQ.s),TICK_TASK_B_PRIO);
+			if(exec == OK){
+					NODE *nB = Dequeue(&pQ);
+					if(nB !=NULL){
+						PORTB ^= nB->info;
+					}
+					NODE nodeB = {.info = (1 << PORTB3), .toPrior = TICK_TASK_C_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
+					Enqueue(&pQ,&nodeB);
+					do_sem_up(&(pQ.s));
+				}
+			break;
+		}
+	}
+}
+void tickTaskC(SSTEvent e){
+	switch (e.sig){
+		case INIT_SIG:{
+			PORTB |= (1 << PORTB3);
+			break;
+		}
+		case TICK_SIG:{
+			uint8_t exec = do_sem_down(&(pQ.s),TICK_TASK_C_PRIO);
+			if(exec == OK){
+				NODE *nC = Dequeue(&pQ);
+				if(nC !=NULL){
+					PORTB ^= nC->info;
+				}
+				NODE nodeC = {.info = (1 << PORTB1), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
+				Enqueue(&pQ,&nodeC);
+				do_sem_up(&(pQ.s));
+    	}
+			break;
+		}
 	}
 }

@@ -21,9 +21,12 @@
 
 static SSTEvent tickTaskAQueue[2];
 static SSTEvent tickTaskBQueue[2];
+static SSTEvent tickTaskCQueue[2];
 
 static uint8_t flag = 0;
-Queue pQ; 
+static uint16_t counterInter = 0;
+
+Queue pQ;
 
 // ********************************************************************************
 // Interrupt Routines
@@ -34,28 +37,32 @@ Queue pQ;
 ISR(TIMER0_OVF_vect) {
     /* Toggle a pin on timer overflow */
     // PORTB ^= (1 << PORTB5);
-    uint8_t pin;
+    if(counterInter >= 480){ // (3*160) each 3*2,097152 seconds (Frequency internal 20Mhz)
+        uint8_t pin;
+        SST_ISR_ENTRY(pin, TICK_ISR_PRIO);
+        if(flag == 0){
+            flag = 1;
+            SST_post(TICK_TASK_A_PRIO, TICK_SIG, 0);     /* post the Tick to Task A */
+        }else{
+            flag = 0;
+            SST_post(TICK_TASK_B_PRIO, TICK_SIG, 0);     /* post the Tick to Task B */
+        }
+        SST_ISR_EXIT(pin,pin);
 
-    SST_ISR_ENTRY(pin, TICK_ISR_PRIO);
+          /* Clear overflow flag */
+        TIFR0 = 1<<TOV0;
 
-    if(flag == 0){
-        SST_post(TICK_TASK_A_PRIO, TICK_SIG, 0);     /* post the Tick to Task A */
-        flag = 1;
+        counterInter = 0;
     }else{
-        SST_post(TICK_TASK_B_PRIO, TICK_SIG, 0);     /* post the Tick to Task B */
-        flag = 0;
+        counterInter++;
     }
-    SST_ISR_EXIT(pin,pin);
-    
-      /* Clear overflow flag */
-    TIFR0 = 1<<TOV0;
 }
 
 
-// static void interrupt timerISR() {  
+// static void interrupt timerISR() {
 //     SST_ISR_ENTRY(pin, TICK_ISR_PRIO);
 
-//     SST_post(TICK_TASK_A_PRIO, TICK_SIG, 0);      post the Tick to Task A 
+//     SST_post(TICK_TASK_A_PRIO, TICK_SIG, 0);      post the Tick to Task A
 //     // SST_post(TICK_TASK_B_PRIO, TICK_SIG, 0);     /* post the Tick to Task B */
 
 //      SST_INT_LOCK();
@@ -67,20 +74,22 @@ ISR(TIMER0_OVF_vect) {
 int main(int argc, char *argv[]) {
 
 
-    pQ = ConstructQueue(7,1);
- 
-    /* Timer clock = I/O clock / 1024 */
-    TCCR0B = (1<<CS02)|(1<<CS00);
-     /* Clear overflow flag */
-    TIFR0 = 1<<TOV0;
-     /* Enable Overflow Interrupt */
-    TIMSK0 = 1<<TOIE0;
+  pQ = ConstructQueue(7,1);
 
-    /* set pin 5 of PORTB for output*/
-    DDRB |= _BV(DDB5);
+  /* Timer clock = I/O clock / 1024 */
+   TCCR0B = (1<<CS02)|(1<<CS00);
+    /* Clear overflow flag */
+   TIFR0 = 1<<TOV0;
+    /* Enable Overflow Interrupt */
+   TIMSK0 = 1<<TOIE0;
+
+   /* set pin 5 of PORTB for output (LED FROM ARDUINO IS ON PORTB5)*/
+  //  DDRB |= _BV(DDB5);
+   /*SET PINS 1,2,3 of PORTB for output*/
+   DDRB |= (1<< DDB1) | (1<< DDB2) | (1<< DDB3);
 
     //Inicializando a fila com algum nó
-    NODE node = {.info = (1 << PORTB5), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev =&(NODE){} }}; //[1]
+    NODE node = {.info = (1 << PORTB1), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev =&(NODE){} }}; //[1]
     Enqueue(&pQ,&node);
 
     // SST_init();                                       /* initialize the SST */
@@ -92,6 +101,9 @@ int main(int argc, char *argv[]) {
             tickTaskBQueue, sizeof(tickTaskBQueue)/sizeof(tickTaskBQueue[0]),
             INIT_SIG, 0);
 
+    SST_task(&tickTaskC, TICK_TASK_C_PRIO,
+            tickTaskCQueue, sizeof(tickTaskCQueue)/sizeof(tickTaskCQueue[0]),
+            INIT_SIG, 0);
 
     SST_run();                                   /* run the SST application */
     return 0;
