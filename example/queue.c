@@ -61,32 +61,3 @@ int isEmpty(Queue *pQueue) {
         return FALSE;
     }
 }
-
-//http://stackoverflow.com/questions/11281240/c-sorting-a-queue-of-structures
-// void sort(Queue* queue)
-// {
-//     NODE **pp, *this;
-
-//     if (!queue->head ){
-//         fprintf(stderr, "The Queue is empty\n");
-//         return;
-//        }
-
-//     for(pp = &queue->head; this = *pp; pp = &(*pp)->prev){
-//         NODE *other = this->prev;
-//         if (!this->prev) break;
-//         if (this->prior < other->p) continue;
-
-//         ** Now, Swap this (b) and other (c)
-//         ** old situation: @a -> (b) -> (c) -> (d)
-//         ** new situation: @a -> (c) -> (b) -> (d)
-
-//         *pp = other;              /* @a  -> (c) */
-//         this->prev = other->prev; /* (b) -> (d) */
-//         other->prev = this;       /* (c) -> (b) */
-//     }
-// /* Note: when we get here, "this" will contain the last non-NULL node in the
-// ** chain, and can be used to reset the tail-pointer
-// */
-// return;
-// }

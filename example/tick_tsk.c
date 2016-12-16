@@ -39,7 +39,7 @@ void tickTaskA(SSTEvent e) {
 					if(nA !=NULL){
 						PORTB ^= nA->info;
 					}
-					NODE nodeA = {.info = (1 << PORTB2), .toPrior = TICK_TASK_B_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
+					NODE nodeA = {.info = (1 << PORTB2), .toPrior = TICK_TASK_B_PRIO,.prev=&(NODE){}}; //[1]
 					Enqueue(&pQ,&nodeA);
 					SST_INT_LOCK();
 					SST_post(TICK_TASK_C_PRIO,TICK_SIG,0);
@@ -64,7 +64,7 @@ void tickTaskB(SSTEvent e) {
 					if(nB !=NULL){
 						PORTB ^= nB->info;
 					}
-					NODE nodeB = {.info = (1 << PORTB3), .toPrior = TICK_TASK_C_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
+					NODE nodeB = {.info = (1 << PORTB3), .toPrior = TICK_TASK_C_PRIO,.prev=&(NODE){}}; //[1]
 					Enqueue(&pQ,&nodeB);
 					do_sem_up(&(pQ.s));
 				}
@@ -85,7 +85,7 @@ void tickTaskC(SSTEvent e){
 				if(nC !=NULL){
 					PORTB ^= nC->info;
 				}
-				NODE nodeC = {.info = (1 << PORTB1), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){.info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))}}; //[1]
+				NODE nodeC = {.info = (1 << PORTB1), .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){}}; //[1]
 				Enqueue(&pQ,&nodeC);
 				do_sem_up(&(pQ.s));
     	}
