@@ -16,27 +16,12 @@
 *****************************************************************************/
 #include "sst_port.h"
 #include "sst_exa.h"
-#include <util/delay.h>
 
-#define BLINK_DELAY_MS 2000
-#define BLINK_FAST_DELAY_MS 300
 /*..........................................................................*/
 void tickTaskA(SSTEvent e) {
- // static uint8_t counter = 0;
- //  if(counter == 0){
-    //     PORTB ^= (1 << PORTB5);
-     PORTB |= (1 << PORTB5);
- 	// }
-  // counter++;
-     _delay_ms(BLINK_DELAY_MS);
+  PORTB ^= (1 << PORTB1);
 }
 
 void tickTaskB(SSTEvent e) {
-	// static uint8_t counter2 = 255;
-  // if(counter2 == 0){
-		PORTB &= (~(1 << PORTB5));
-		// counter2 = 255;
-   // }
-   // counter2-=2;
-     _delay_ms(BLINK_DELAY_MS);
+  PORTB ^= (1 << PORTB2);
 }
