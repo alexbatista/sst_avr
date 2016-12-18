@@ -23,7 +23,7 @@ uint8_t do_sem_down(Semaphore *sem, uintX_t prior){
 		return OK;
 	}
 
-	sem->tasksWaiting |= (1 << (prior-1));  //põe tarefa na "fila"
+	sem->tasksWaiting |= (1ULL << (prior-1));  //põe tarefa na "fila"
 	return BUSY;
 
 }
@@ -37,7 +37,7 @@ uint8_t do_sem_up(Semaphore *sem){
 
     while(p == 0){
       p = taskPrior & iteratorPrior;
-    	if(p == 0) iteratorPrior >>= 1;
+    	if(p == 0) iteratorPrior >>= 1ULL;
     }
 	  sem->tasksWaiting &= ~iteratorPrior;
 

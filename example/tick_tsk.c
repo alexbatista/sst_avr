@@ -19,11 +19,11 @@
 // #include "queue.h"
 #include "mailbox.h"
 // #include "shared.h"
-#include <util/delay.h>
+// #include <util/delay.h>
 #include <stdlib.h>
 
-#define BLINK_DELAY_MS 2000
-#define BLINK_FAST_DELAY_MS 300
+// #define BLINK_DELAY_MS 2000
+// #define BLINK_FAST_DELAY_MS 300
 
 /*[1] http://stackoverflow.com/questions/11709929/how-to-initialize-a-pointer-to-a-struct-in-c*/
 /*..........................................................................*/
