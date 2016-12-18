@@ -46,7 +46,7 @@ void SST_task(SSTTask task, uintX_t prio, SSTEvent *queue, uintX_t qlen,
     tcb->head__  = (uintX_t)0;
     tcb->tail__  = (uintX_t)0;
     tcb->nUsed__ = (uintX_t)0;
-    tcb->mask__  = (1 << (prio - 1));
+    tcb->mask__  = (1ULL << (prio - 1));
     ie.sig = sig;
     ie.par = par;
     tcb->task__(ie);                                 /* initialize the task */
@@ -87,21 +87,18 @@ uintX_t SST_post(uintX_t prio, SSTSignal sig, SSTParam par) {
     }
 }
 
-
-/*..........................................................................*/
 /* NOTE: the SST scheduler is entered and exited with interrupts LOCKED */
 void SST_schedule_(void) {
 
     uintX_t iteratorPrior = ITERATORPRIOR;
     uintX_t pin = SST_currPrio_;               /* save the initial priority */
-    uintX_t p = 0;                             /* the new priority */
-
+    uintX_t p = (uintX_t) 0;                             /* the new priority */
     if( SST_readySet_ > 0){                     /*there is at least one task*/
         do{
             p = SST_readySet_ & iteratorPrior;
-            if(p == 0) iteratorPrior >>= 1;
+            if(p == 0) iteratorPrior >>= 1ULL;
         }while(p == 0 && iteratorPrior > 0);
-        if(p != 0) p = log(p)/log(2) +1; //calc priority log base 2 by ln
+        if(p != 0) p = log(p)/log(2) + 1; //calc priority log base 2 by ln
                               /* is the new priority higher than the initial? */
         while (p > pin) {
             TaskCB *tcb  = &l_taskCB[p - 1];
@@ -123,14 +120,13 @@ void SST_schedule_(void) {
             iteratorPrior = ITERATORPRIOR;
             do{
                 p = SST_readySet_ & iteratorPrior;
-                if(p == 0) iteratorPrior >>= 1;
+                if(p == 0) iteratorPrior >>= 1ULL;
             }while(p == 0 && iteratorPrior > 0);
-            if(p != 0) 	p = log(p)/log(2) +1; //calc priority log base 2 by ln
+            if(p != 0) 	p = log(p)/log(2) + 1; //calc priority log base 2 by ln
             //ATUALIZANDO O VALOR DE P BASEADO NO NOVO SST_readSet,
             //visto que é necessário que o SST execute a mais nova tarefa de maior prioridade.
             //No original era p[SST_readySet_]
         }
-
         SST_currPrio_ = pin;                    /* restore the initial priority */
     }
 }
