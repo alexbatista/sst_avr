@@ -19,7 +19,7 @@
 
 #include <stdint.h>                 /* exact-width integer types, ANSI C'99 */
 
-#define nTasks 64
+#define nTasks 16
 
 #if nTasks == 8
     typedef uint8_t uintX_t;

@@ -1,3 +1,4 @@
-*.ghc
+*.gch
 *.o
 *.hex
+main
