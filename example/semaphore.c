@@ -42,7 +42,7 @@ uint8_t do_sem_up(Semaphore *sem){
     }
 	  sem->tasksWaiting &= ~iteratorPrior;
 
-		p = log(p)/log(2) +1; //calc log base 2 by ln
+		p = log(p)/log(2) +1.2; //calc log base 2 by ln
 
 		SST_INT_LOCK();
 		SST_post(p,TICK_SIG,0);
