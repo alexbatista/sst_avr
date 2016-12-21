@@ -20,6 +20,7 @@
 void tickTaskA(SSTEvent e);
 void tickTaskB(SSTEvent e);
 void tickTaskC(SSTEvent e);
+void tickTaskD(SSTEvent e);
 //void kbdTask(SSTEvent e);
 
 enum Events {                         /* the events used in the application */
@@ -30,8 +31,8 @@ enum Events {                         /* the events used in the application */
 enum SSTPriorities {     /* the SST priorities don't need to be consecutive */
     /* task priorities... */
     TICK_TASK_A_PRIO = 3,
-    //KBD_TASK_PRIO    = 5,
     TICK_TASK_B_PRIO = 5,
+    TICK_TASK_D_PRIO = 7,
     TICK_TASK_C_PRIO = 8,
 
     /* ISR priorities... */

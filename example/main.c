@@ -14,9 +14,11 @@
 * Email:    miro@quantum-leaps.com
 * Internet: www.quantum-leaps.com
 *****************************************************************************/
+#include <stdio.h>
 #include "sst_port.h"
 #include "sst_exa.h"
 #include "queue.h"
+#include "uart.h"
 // #include "shared.h"
 // #include <stdlib.h>
 //#include "bsp.h"
@@ -27,6 +29,7 @@
 static SSTEvent tickTaskAQueue[2];
 static SSTEvent tickTaskBQueue[2];
 static SSTEvent tickTaskCQueue[2];
+static SSTEvent tickTaskDQueue[2];
 // static SSTEvent kbdTaskQueue[2];
 
 // static uint32_t l_delayCtr = 0UL;
@@ -81,6 +84,9 @@ ISR(TIMER0_OVF_vect) {
 /*..........................................................................*/
 int main(int argc, char *argv[]) {
 
+    uart_init();
+    stdout = &uart_output;
+    stdin  = &uart_input;
 
     // pQ = ConstructQueue(7);
     s = ConstructSemaphore(1);
@@ -96,7 +102,7 @@ int main(int argc, char *argv[]) {
     /* set pin 5 of PORTB for output (LED FROM ARDUINO IS ON PORTB5)*/
     DDRB |= _BV(DDB5);
     /*SET PINS 1,2,3 of PORTB for output*/
-    DDRB |= (1<< DDB1) | (1<< DDB2) | (1<< DDB3);
+    // DDRB |= (1<< DDB1) | (1<< DDB2) | (1<< DDB3);
 
     // SST_init();                                       /* initialize the SST */
     SST_task(&tickTaskA, TICK_TASK_A_PRIO,
@@ -109,6 +115,10 @@ int main(int argc, char *argv[]) {
 
     SST_task(&tickTaskC, TICK_TASK_C_PRIO,
             tickTaskCQueue, sizeof(tickTaskCQueue)/sizeof(tickTaskCQueue[0]),
+            INIT_SIG, 0);
+
+    SST_task(&tickTaskD, TICK_TASK_D_PRIO,
+            tickTaskDQueue, sizeof(tickTaskDQueue)/sizeof(tickTaskDQueue[0]),
             INIT_SIG, 0);
 
 

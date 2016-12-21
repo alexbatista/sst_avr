@@ -18,6 +18,7 @@
 #include "sst_exa.h"
 #include "queue.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 #define BLINK_DELAY_MS 2000
 #define BLINK_FAST_DELAY_MS 300
@@ -28,14 +29,17 @@ void tickTaskA(SSTEvent e) {
 	switch (e.sig) {
         case INIT_SIG: {
 	       PORTB |= (1 << PORTB1);
+				 puts("TaskA INIT_SIG Running...");
             break;
         }
         case TICK_SIG: {
     		uint8_t exec = do_sem_down(&s,TICK_TASK_A_PRIO);
 				if(exec == OK){
-					PORTB ^= (1 << PORTB1); //TOOGLE PORTB
+					puts("TaskA TICK_SIG Running...");
+					// PORTB ^= (1 << PORTB1); //TOOGLE PORTB
 					SST_INT_LOCK();
 					SST_post(TICK_TASK_C_PRIO,TICK_SIG,0);
+					SST_post(TICK_TASK_D_PRIO,TICK_SIG,0);
 					SST_INT_UNLOCK();
 					do_sem_up(&s);
 	    	}
@@ -47,13 +51,15 @@ void tickTaskA(SSTEvent e) {
 void tickTaskB(SSTEvent e) {
 	switch (e.sig) {
         case INIT_SIG: {
-				 PORTB |= (1 << PORTB2);
+					puts("TaskB INIT_SIG Running...");
+				//  PORTB |= (1 << PORTB2);
             break;
         }
         case TICK_SIG: {
 			uint8_t exec = do_sem_down(&s,TICK_TASK_B_PRIO);
 			if(exec == OK){
-				PORTB ^= (1 << PORTB2); //TOOGLE PORTB
+				puts("TaskB TICK_SIG Running...");
+				// PORTB ^= (1 << PORTB2); //TOOGLE PORTB
 				do_sem_up(&s);
     		}
 			break;
@@ -64,13 +70,34 @@ void tickTaskC(SSTEvent e){
 	uint8_t i = 0;
 	switch (e.sig){
 		case INIT_SIG:{
-			PORTB |= (1 << PORTB3);
+			puts("TaskC INIT_SIG Running...");
+			// PORTB |= (1 << PORTB3);
 			break;
 		}
 		case TICK_SIG:{
 			uint8_t exec = do_sem_down(&s,TICK_TASK_C_PRIO);
 			if(exec == OK){
-				PORTB ^= (1 << PORTB3); //TOOGLE PORTB
+				puts("TaskC TICK_SIG Running...");
+				// PORTB ^= (1 << PORTB3); //TOOGLE PORTB
+				do_sem_up(&s);
+    		}
+			break;
+		}
+	}
+}
+void tickTaskD(SSTEvent e){
+	uint8_t i = 0;
+	switch (e.sig){
+		case INIT_SIG:{
+			puts("TaskD INIT_SIG Running...");
+			// PORTB |= (1 << PORTB3);
+			break;
+		}
+		case TICK_SIG:{
+			uint8_t exec = do_sem_down(&s,TICK_TASK_D_PRIO);
+			if(exec == OK){
+				puts("TaskD TICK_SIG Running...");
+				// PORTB ^= (1 << PORTB3); //TOOGLE PORTB
 				do_sem_up(&s);
     		}
 			break;

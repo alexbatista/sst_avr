@@ -1,5 +1,6 @@
 #include "semaphore.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include "sst_exa.h"
 #include "sst_port.h"
 // #include <util/delay.h>
@@ -19,17 +20,18 @@ uint8_t do_sem_down(Semaphore *sem, uintX_t prior){
 	}
 
 	if(sem->counter > 0){
+		puts("Semaphore is UP, putting on DOWN, executing Task...");
 		sem->counter--;
 		return OK;
 	}
-
+	puts("Semaphore already DOWN, wait a little bit...");
 	sem->tasksWaiting |= (1ULL << (prior-1));  //põe tarefa na "fila"
 	return BUSY;
 
 }
 
 uint8_t do_sem_up(Semaphore *sem){
-
+	puts("Releasing semaphore... Now, Semaphore is UP!\n");
 	sem->counter++;
 	if(sem->tasksWaiting > 0){ //there is any taskPrior waiting for resources?
 		uintX_t p = 0;
@@ -43,7 +45,7 @@ uint8_t do_sem_up(Semaphore *sem){
 	  sem->tasksWaiting &= ~iteratorPrior;
 
 		p = log(p)/log(2) +1.2; //calc log base 2 by ln
-
+		printf("There is a task with priority %d waiting for semaphore\n",p);
 		SST_INT_LOCK();
 		SST_post(p,TICK_SIG,0);
 		SST_INT_UNLOCK();
