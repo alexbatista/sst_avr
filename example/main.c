@@ -14,24 +14,17 @@
 * Email:    miro@quantum-leaps.com
 * Internet: www.quantum-leaps.com
 *****************************************************************************/
+#include <stdio.h>
 #include "sst_port.h"
 #include "sst_exa.h"
-// #include "queue.h"
 #include "mailbox.h"
-// #include "shared.h"
-// #include <stdlib.h>
-//#include "bsp.h"
+#include "uart.h"
 
-// #include <stdlib.h>                                           /* for atol() */
-
-//static void setupScreen(void);
 static SSTEvent tickTaskAQueue[2];
 static SSTEvent tickTaskBQueue[2];
 static SSTEvent tickTaskCQueue[2];
+static SSTEvent tickTaskDQueue[2];
 
-// static SSTEvent kbdTaskQueue[2];
-
-// static uint32_t l_delayCtr = 0UL;
 static uint8_t flag = 0;
 static uint16_t counterInter = 0;
 
@@ -47,7 +40,9 @@ ISR(TIMER0_OVF_vect) {
     // PORTB ^= (1 << PORTB5);
     if(counterInter >= 480){ // (3*160) each 3*2,097152 seconds (Frequency internal 20Mhz)
         uint8_t pin;
+
         SST_ISR_ENTRY(pin, TICK_ISR_PRIO);
+
         if(flag == 0){
             flag = 1;
             SST_post(TICK_TASK_A_PRIO, TICK_SIG, 0);     /* post the Tick to Task A */
@@ -66,39 +61,15 @@ ISR(TIMER0_OVF_vect) {
     }
 }
 
-
-// static void interrupt timerISR() {
-//     SST_ISR_ENTRY(pin, TICK_ISR_PRIO);
-
-//     SST_post(TICK_TASK_A_PRIO, TICK_SIG, 0);      post the Tick to Task A
-//     // SST_post(TICK_TASK_B_PRIO, TICK_SIG, 0);     /* post the Tick to Task B */
-
-//      SST_INT_LOCK();
-// }
-
-
-
 /*..........................................................................*/
 int main(int argc, char *argv[]) {
 
+    SST_init();
+
     mb = ConstructMailBox();
+     //Initializing mailbox
+    put(&mb,2015);
 
-    /* Timer clock = I/O clock / 1024 */
-      TCCR0B = (1<<CS02)|(1<<CS00);
-       /* Clear overflow flag */
-      TIFR0 = 1<<TOV0;
-       /* Enable Overflow Interrupt */
-      TIMSK0 = 1<<TOIE0;
-
-      /* set pin 5 of PORTB for output (LED FROM ARDUINO IS ON PORTB5)*/
-     //  DDRB |= _BV(DDB5);
-      /*SET PINS 1,2,3 of PORTB for output*/
-      DDRB |= (1<< DDB1) | (1<< DDB2) | (1<< DDB3);
-
-    //Initializing mailbox
-    put(&mb,(1 << PORTB1));
-
-    // SST_init();                                       /* initialize the SST */
     SST_task(&tickTaskA, TICK_TASK_A_PRIO,
             tickTaskAQueue, sizeof(tickTaskAQueue)/sizeof(tickTaskAQueue[0]),
             INIT_SIG, 0);
@@ -106,17 +77,38 @@ int main(int argc, char *argv[]) {
     SST_task(&tickTaskB, TICK_TASK_B_PRIO,
             tickTaskBQueue, sizeof(tickTaskBQueue)/sizeof(tickTaskBQueue[0]),
             INIT_SIG, 0);
+
     SST_task(&tickTaskC, TICK_TASK_C_PRIO,
             tickTaskCQueue, sizeof(tickTaskCQueue)/sizeof(tickTaskCQueue[0]),
             INIT_SIG, 0);
 
-    // SST_task(&kbdTask, KBD_TASK_PRIO,
-    //          kbdTaskQueue, sizeof(kbdTaskQueue)/sizeof(kbdTaskQueue[0]),
-    //          INIT_SIG, 0);
+    SST_task(&tickTaskD, TICK_TASK_D_PRIO,
+            tickTaskDQueue, sizeof(tickTaskDQueue)/sizeof(tickTaskDQueue[0]),
+            INIT_SIG, 0);
+
 
     SST_run();                                   /* run the SST application */
     return 0;
 }
 
 void SST_onIdle(){
+}
+
+void SST_init(){
+  uart_init();
+  stdout = &uart_output;
+  stdin  = &uart_input;
+
+  // pQ->s = s;
+  /* Timer clock = I/O clock / 1024 */
+  TCCR0B = (1<<CS02)|(1<<CS00);
+   /* Clear overflow flag */
+  TIFR0 = 1<<TOV0;
+   /* Enable Overflow Interrupt */
+  TIMSK0 = 1<<TOIE0;
+
+  /* set pin 5 of PORTB for output (LED FROM ARDUINO IS ON PORTB5)*/
+  DDRB |= _BV(DDB5);
+  /*SET PINS 1,2,3 of PORTB for output*/
+  // DDRB |= (1<< DDB1) | (1<< DDB2) | (1<< DDB3);
 }

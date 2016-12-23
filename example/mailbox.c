@@ -35,11 +35,11 @@ int put(MailBox *mailbox, int msg) {
 int get(MailBox *mailbox) {
 	int msg = 0;
     if (mailbox->size <= 0)
-        return NULL;
+        return 0;
 
     mailbox->size--;
     msg = mailbox->msgAvailable;
-    mailbox->msgAvailable = NULL;
+    mailbox->msgAvailable = 0;
 	return msg;
 }
 

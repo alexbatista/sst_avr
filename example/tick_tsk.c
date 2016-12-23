@@ -16,33 +16,29 @@
 *****************************************************************************/
 #include "sst_port.h"
 #include "sst_exa.h"
-// #include "queue.h"
 #include "mailbox.h"
-// #include "shared.h"
-// #include <util/delay.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-// #define BLINK_DELAY_MS 2000
-// #define BLINK_FAST_DELAY_MS 300
 
-/*[1] http://stackoverflow.com/questions/11709929/how-to-initialize-a-pointer-to-a-struct-in-c*/
 /*..........................................................................*/
 void tickTaskA(SSTEvent e) {
 	switch (e.sig){
 		case INIT_SIG:{
-			PORTB |= (1 << PORTB1);
+			puts("TaskA INIT_SIG Running...");
 			break;
 		}
 		case TICK_SIG:{
 			uint8_t exec = do_sem_down(&(mb.mutex),TICK_TASK_A_PRIO);
 			if(exec == OK){
 				if(!isEmpty(&mb)){
-						PORTB ^= get(&mb);
+						printf("TaskA TICK_SIG Running... Get %d from mailbox!\n",get(&mb));
 				}
-				int msg = (1 << PORTB2);
+				int msg = 2016;
 				put(&mb,msg);
 				SST_INT_LOCK();
 				SST_post(TICK_TASK_C_PRIO,TICK_SIG,0);
+				SST_post(TICK_TASK_D_PRIO,TICK_SIG,0);
 				SST_INT_UNLOCK();
 				do_sem_up(&(mb.mutex));
     		}
@@ -50,19 +46,20 @@ void tickTaskA(SSTEvent e) {
 		}
 	}
 }
+
 void tickTaskB(SSTEvent e) {
 	switch (e.sig){
 		case INIT_SIG:{
-			PORTB |= (1 << PORTB2);
+			puts("TaskB INIT_SIG Running...");
 			break;
 		}
 		case TICK_SIG:{
 			uint8_t exec = do_sem_down(&(mb.mutex),TICK_TASK_B_PRIO);
 			if(exec == OK){
 				if(!isEmpty(&mb)){
-						PORTB ^= get(&mb);
+					printf("TaskB TICK_SIG Running... Get %d from mailbox!\n",get(&mb));
 				}
-				int msg = (1 << PORTB3);
+				int msg = 2017;
 				put(&mb,msg);
 				do_sem_up(&(mb.mutex));
     		}
@@ -70,22 +67,42 @@ void tickTaskB(SSTEvent e) {
 		}
 	}
 }
-void tickTaskC(SSTEvent e) {
+void tickTaskC(SSTEvent e){
 	switch (e.sig){
 		case INIT_SIG:{
-			PORTB |= (1 << PORTB3);
+			puts("TaskC INIT_SIG Running...");
 			break;
 		}
 		case TICK_SIG:{
 			uint8_t exec = do_sem_down(&(mb.mutex),TICK_TASK_C_PRIO);
 			if(exec == OK){
 				if(!isEmpty(&mb)){
-						PORTB ^= get(&mb);
+					printf("TaskC TICK_SIG Running... Get %d from mailbox!\n",get(&mb));
 				}
-				int msg = (1 << PORTB1);
+				int msg = 2018;
 				put(&mb,msg);
 				do_sem_up(&(mb.mutex));
     		}
+			break;
+		}
+	}
+}
+void tickTaskD(SSTEvent e){
+	switch (e.sig){
+		case INIT_SIG:{
+			puts("TaskD INIT_SIG Running...");
+			break;
+		}
+		case TICK_SIG:{
+			uint8_t exec = do_sem_down(&(mb.mutex),TICK_TASK_D_PRIO);
+			if(exec == OK){
+				if(!isEmpty(&mb)){
+				printf("TaskD TICK_SIG Running... Get %d from mailbox!\n",get(&mb));
+				}
+				int msg = 2019;
+				put(&mb,msg);
+				do_sem_up(&(mb.mutex));
+    	}
 			break;
 		}
 	}

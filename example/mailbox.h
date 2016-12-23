@@ -1,4 +1,4 @@
-// #include "sst.h"
+#include "sst.h"
 #include "semaphore.h"
 
 #define TRUE  1
