@@ -88,9 +88,6 @@ int main(int argc, char *argv[]) {
 
     pQ = ConstructQueue(4,1);
 
-    NODE node = {.info = 2011,.prev=&(NODE){.info = 0,.prev =&(NODE){} }}; //[1]
-    Enqueue(&pQ,&node);
-
     // SST_init();                                       /* initialize the SST */
     SST_task(&tickTaskA, TICK_TASK_A_PRIO,
             tickTaskAQueue, sizeof(tickTaskAQueue)/sizeof(tickTaskAQueue[0]),

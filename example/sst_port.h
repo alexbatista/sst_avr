@@ -28,4 +28,3 @@
 #include "sst.h"                      /* SST platform-independent interface */
 
 #endif                                                        /* sst_port_h */
-

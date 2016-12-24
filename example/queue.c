@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "queue.h"
 
 Queue ConstructQueue(int lim, int sizeSemaphore) {
@@ -19,10 +20,12 @@ void DestructQueue(Queue *queue) {
 int Enqueue(Queue *pQueue, NODE *item) {
     /* Bad parameter */
     if ((pQueue == NULL) || (item == NULL)) {
-        return FALSE;
+      puts("The queue or item is NULL");
+      return FALSE;
     }
     // if(pQueue->limit != 0)
     if (pQueue->size >= pQueue->limit) {
+      puts("The queue is full");
         return FALSE;
     }
     /*the queue is empty*/
@@ -30,13 +33,15 @@ int Enqueue(Queue *pQueue, NODE *item) {
     if (pQueue->size == 0) {
         pQueue->head = item;
         pQueue->tail = item;
-
+        printf("Enqueue! Putting the first element to queue: %d\n",pQueue->tail->info);
     } else {
         /*adding item to the end of the queue*/
         pQueue->tail->prev = item;
         pQueue->tail = item;
+        printf("Enqueue! Putting element to queue: %d\n",pQueue->tail->info);
     }
     pQueue->size++;
+    printf("The size of the queue is now: %d\n", pQueue->size);
     return TRUE;
 }
 
@@ -47,6 +52,7 @@ NODE *Dequeue(Queue *pQueue) {
     NODE *item = pQueue->head;
     pQueue->head = (pQueue->head)->prev;
     pQueue->size--;
+    printf("Dequeue! The size of the queue is now: %d. The value of the item dequeue was: %d\n", pQueue->size,item->info);
     return item;
 }
 
