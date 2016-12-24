@@ -98,7 +98,7 @@ void SST_schedule_(void) {
             p = SST_readySet_ & iteratorPrior;
             if(p == 0) iteratorPrior >>= 1ULL;
         }while(p == 0 && iteratorPrior > 0);
-        if(p != 0) p = log(p)/log(2) + 1; //calc priority log base 2 by ln
+        if(p != 0) p = log(p)/log(2) + 1.2; //calc priority log base 2 by ln
                               /* is the new priority higher than the initial? */
         while (p > pin) {
             TaskCB *tcb  = &l_taskCB[p - 1];
@@ -122,7 +122,7 @@ void SST_schedule_(void) {
                 p = SST_readySet_ & iteratorPrior;
                 if(p == 0) iteratorPrior >>= 1ULL;
             }while(p == 0 && iteratorPrior > 0);
-            if(p != 0) 	p = log(p)/log(2) + 1; //calc priority log base 2 by ln
+            if(p != 0) 	p = log(p)/log(2) + 1.2; //calc priority log base 2 by ln
             //ATUALIZANDO O VALOR DE P BASEADO NO NOVO SST_readSet,
             //visto que é necessário que o SST execute a mais nova tarefa de maior prioridade.
             //No original era p[SST_readySet_]

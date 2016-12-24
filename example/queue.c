@@ -27,7 +27,6 @@ int Enqueue(Queue *pQueue, NODE *item) {
     }
     /*the queue is empty*/
 
-    // item->prev = NULL;
     if (pQueue->size == 0) {
         pQueue->head = item;
         pQueue->tail = item;
@@ -46,7 +45,7 @@ NODE *Dequeue(Queue *pQueue) {
     if (isEmpty(pQueue))
         return NULL;
     NODE *item = pQueue->head;
-    pQueue->head = pQueue->head->prev;
+    pQueue->head = (pQueue->head)->prev;
     pQueue->size--;
     return item;
 }

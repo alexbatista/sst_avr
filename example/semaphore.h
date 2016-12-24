@@ -12,7 +12,8 @@ typedef struct Semaphore_t
 
 
 Semaphore ConstructSemaphore(int8_t c);
+// uint8_t do_sem_init(Semaphore *s);
 uint8_t do_sem_down(Semaphore *sem, uintX_t prior);
 uint8_t do_sem_up(Semaphore *sem);
 
-// extern 	Semaphore s;
+extern 	Semaphore s;

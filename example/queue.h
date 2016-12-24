@@ -12,8 +12,8 @@
 
 typedef struct Node_t {
     // DATA data;
-    uintX_t toPrior; //for what task this info goes?
-    uintX_t info;
+    // uintX_t toPrior; //for what task this info goes?
+    uint32_t info;
     struct Node_t *prev;
 } NODE;
 
