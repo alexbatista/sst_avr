@@ -20,11 +20,11 @@ uint8_t do_sem_down(Semaphore *sem, uintX_t prior){
 	}
 
 	if(sem->counter > 0){
-		puts("Semaphore is UP, putting on DOWN, executing Task...");
+		puts("A Task arrived, Semaphore is UP, putting on DOWN, executing Task...");
 		sem->counter--;
 		return OK;
 	}
-	puts("Semaphore already DOWN, wait a little bit...");
+	puts("A Task arrived, Semaphore already DOWN, wait a little bit...");
 	sem->tasksWaiting |= (1ULL << (prior-1));  //põe tarefa na "fila"
 	return BUSY;
 

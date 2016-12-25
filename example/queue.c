@@ -47,10 +47,14 @@ int Enqueue(Queue *pQueue, NODE *item) {
 
 NODE *Dequeue(Queue *pQueue) {
     /*the queue is empty or bad param*/
-    if (isEmpty(pQueue))
-        return NULL;
+    if (isEmpty(pQueue)){
+      return NULL;
+    }
     NODE *item = pQueue->head;
-    pQueue->head = (pQueue->head)->prev;
+    if(pQueue->size > 1){
+      pQueue->head = (pQueue->head)->prev;
+    }
+
     pQueue->size--;
     printf("Dequeue! The size of the queue is now: %d. The value of the item dequeue was: %d\n", pQueue->size,item->info);
     return item;
