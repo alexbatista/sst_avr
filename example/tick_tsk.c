@@ -26,28 +26,28 @@ void tickTaskA(SSTEvent e) {
 	switch (e.sig) {
         case INIT_SIG: {
 						puts("TaskA INIT_SIG Running...");
-						NODE node = {.info = 200,.prev=&(NODE){}}; //[1]
-						Enqueue(&pQ,&node);
+						// NODE node = {.info = 200,.prev=&(NODE){}}; //[1]
+						Enqueue(&pQ,20);
             break;
         }
         case TICK_SIG: {
     		uint8_t exec = do_sem_down(&(pQ.s),TICK_TASK_A_PRIO);
 				if(exec == OK){
-					NODE *nA = Dequeue(&pQ);
-					if(nA !=NULL){
-						printf("TaskA TICK_SIG Running ...Get %d information from Queue.\n",nA->info);
+					int nA = Dequeue(&pQ);
+					if(nA !=-1){
+						printf("TaskA TICK_SIG Running ...Get %d information from Queue.\n",nA);
 						// printf("The size of the Queue is now: %d.\n",pQ.size);
 					}
-					NODE node1 = {.info = 300,.prev=&(NODE){}}; //[1]
-					NODE node2 = {.info = 400,.prev=&(NODE){}}; //[1]
-					NODE node3 = {.info = 500,.prev=&(NODE){}}; //[1]
-					NODE node4 = {.info = 600,.prev=&(NODE){}}; //[1]
-					NODE node5 = {.info = 700,.prev=&(NODE){}}; //[1]
-					Enqueue(&pQ,&node1);
-					Enqueue(&pQ,&node2);
-					Enqueue(&pQ,&node3);
-					Enqueue(&pQ,&node4);
-					Enqueue(&pQ,&node5);
+					// NODE node1 = {.info = 300,.prev=&(NODE){}}; //[1]
+					// NODE node2 = {.info = 400,.prev=&(NODE){}}; //[1]
+					// NODE node3 = {.info = 500,.prev=&(NODE){}}; //[1]
+					// NODE node4 = {.info = 600,.prev=&(NODE){}}; //[1]
+					// NODE node5 = {.info = 700,.prev=&(NODE){}}; //[1]
+					Enqueue(&pQ,30);
+					Enqueue(&pQ,40);
+					Enqueue(&pQ,50);
+					Enqueue(&pQ,60);
+					Enqueue(&pQ,70);
 					SST_INT_LOCK();
 					SST_post(TICK_TASK_C_PRIO,TICK_SIG,0);
 					SST_post(TICK_TASK_D_PRIO,TICK_SIG,0);
@@ -68,9 +68,9 @@ void tickTaskB(SSTEvent e) {
         case TICK_SIG: {
 			uint8_t exec = do_sem_down(&(pQ.s),TICK_TASK_B_PRIO);
 				if(exec == OK){
-					NODE *nB = Dequeue(&pQ);
-					if(nB !=NULL){
-							printf("TaskB TICK_SIG Running ...Get %d information from Queue.\n",nB->info);
+					int nB = Dequeue(&pQ);
+					if(nB !=-1){
+							printf("TaskB TICK_SIG Running ...Get %d information from Queue.\n",nB);
 							// printf("The size of the Queue is now: %d.\n",pQ.size);
 					}
 					// NODE nodeB = {.info = 2013, .toPrior = TICK_TASK_C_PRIO,.prev=&(NODE){}}; //[1]
@@ -91,9 +91,9 @@ void tickTaskC(SSTEvent e){
 		case TICK_SIG: {
 			uint8_t exec = do_sem_down(&(pQ.s),TICK_TASK_C_PRIO);
 				if(exec == OK){
-					NODE *nC = Dequeue(&pQ);
-					if(nC !=NULL){
-							printf("TaskC TICK_SIG Running ...Get %d information from Queue.\n",nC->info);
+					int nC = Dequeue(&pQ);
+					if(nC !=-1){
+							printf("TaskC TICK_SIG Running ...Get %d information from Queue.\n",nC);
 							// printf("The size of the Queue is now: %d.\n",pQ.size);
 					}
 					// NODE nodeC = {.info = 2014, .toPrior = TICK_TASK_D_PRIO,.prev=&(NODE){}}; //[1]
@@ -115,9 +115,9 @@ void tickTaskD(SSTEvent e){
 		case TICK_SIG: {
 			uint8_t exec = do_sem_down(&(pQ.s),TICK_TASK_D_PRIO);
 				if(exec == OK){
-					NODE *nD = Dequeue(&pQ);
-					if(nD !=NULL){
-							printf("TaskD TICK_SIG Running ...Get %d information from Queue.\n",nD->info);
+					int nD = Dequeue(&pQ);
+					if(nD !=-1){
+							printf("TaskD TICK_SIG Running ...Get %d information from Queue.\n",nD);
 							// printf("The size of the Queue is now: %d.\n",pQ.size);
 					}
 					// NODE nodeD = {.info = 2015, .toPrior = TICK_TASK_A_PRIO,.prev=&(NODE){}}; //[1]

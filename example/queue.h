@@ -4,7 +4,7 @@
 #define TRUE  1
 #define FALSE	0
 
-
+#define QUEUE_SIZE 6
 /* a link in the queue, holds the info and point to the next Node*/
 // typedef struct {
 //     uintX_t info;
@@ -20,16 +20,16 @@ typedef struct Node_t {
 /* the HEAD of the Queue, hold the amount of node's that are in the queue*/
 typedef struct Queue {
 	Semaphore s;
-    NODE *head;
-    NODE *tail;
+    uint32_t head;
+    uint32_t tail;
     int size;
-    int limit;
+    int elements[QUEUE_SIZE];
 } Queue;
 
-Queue ConstructQueue(int limit);
+Queue ConstructQueue();
 void DestructQueue(Queue *queue);
-int Enqueue(Queue *pQueue, NODE *item);
-NODE *Dequeue(Queue *pQueue);
+int Enqueue(Queue *pQueue, int item);
+int Dequeue(Queue *pQueue);
 int isEmpty(Queue *pQueue);
 
 //http://stackoverflow.com/questions/3010647/shared-global-variables-in-c

@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
 
     SST_init();
 
-    pQ = ConstructQueue(4);
+    pQ = ConstructQueue();
 
     // SST_init();                                       /* initialize the SST */
     SST_task(&tickTaskA, TICK_TASK_A_PRIO,
