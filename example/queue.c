@@ -2,9 +2,8 @@
 #include <stdio.h>
 #include "queue.h"
 
-Queue ConstructQueue(int lim, int sizeSemaphore) {
-    Queue queue = { .limit = lim, .size = 0, .s = {.counter = sizeSemaphore}, .head =&(NODE){}, .tail =&(NODE){}}; //info = 0,.toPrior = 0,.prev = malloc(sizeof(NODE))
-
+Queue ConstructQueue(int lim) {
+    Queue queue = { .limit = lim, .size = 0, .s = {.counter = (int8_t)1}};
     return queue;
 }
 
@@ -29,34 +28,43 @@ int Enqueue(Queue *pQueue, NODE *item) {
         return FALSE;
     }
     /*the queue is empty*/
-
+    printf("Enqueue Starting!! ------------------\n");
     if (pQueue->size == 0) {
         pQueue->head = item;
         pQueue->tail = item;
-        printf("Enqueue! Putting the first element to queue: %d\n",pQueue->tail->info);
+        printf("Putting the first element to queue: %d\n",pQueue->tail->info);
     } else {
         /*adding item to the end of the queue*/
         pQueue->tail->prev = item;
         pQueue->tail = item;
         printf("Enqueue! Putting element to queue: %d\n",pQueue->tail->info);
     }
+    printf("The info in HEAD is: %d\n",pQueue->head->info);
+    printf("The info in TAIL is: %d\n",pQueue->tail->info);
     pQueue->size++;
-    printf("The size of the queue is now: %d\n", pQueue->size);
+
+    printf("The size of the queue is now: %d\n\n", pQueue->size);
+    printf("Enqueue Ending!! ------------------\n\n");
     return TRUE;
 }
 
 NODE *Dequeue(Queue *pQueue) {
     /*the queue is empty or bad param*/
-    if (isEmpty(pQueue)){
+    if(pQueue == NULL || pQueue->size == 0){
       return NULL;
     }
+    printf("Dequeue Starting!! ------------------\n");
+    printf("The info in HEAD is: %d\n",pQueue->head->info);
+    printf("The info in TAIL is: %d\n",pQueue->tail->info);
     NODE *item = pQueue->head;
-    if(pQueue->size > 1){
-      pQueue->head = (pQueue->head)->prev;
-    }
-
+    // if(pQueue->size > 1){
+    pQueue->head = (pQueue->head)->prev;
+    // }
+    printf("The info in new HEAD is: %d\n",pQueue->head->info);
+    printf("The info in new TAIL is: %d\n",pQueue->tail->info);
     pQueue->size--;
-    printf("Dequeue! The size of the queue is now: %d. The value of the item dequeue was: %d\n", pQueue->size,item->info);
+    printf("The size of the queue is now: %d. The value of the item dequeue was: %d\n", pQueue->size,item->info);
+    printf("Dequeue Ending!! ------------------\n\n");
     return item;
 }
 
