@@ -28,7 +28,7 @@
 void tickTaskA(SSTEvent e) {
 	switch (e.sig) {
         case INIT_SIG: {
-	       PORTB |= (1 << PORTB1);
+	      //  PORTB |= (1 << PORTB1);
 				 puts("TaskA INIT_SIG Running...");
             break;
         }
@@ -37,10 +37,10 @@ void tickTaskA(SSTEvent e) {
 				if(exec == OK){
 					puts("TaskA TICK_SIG Running...");
 					// PORTB ^= (1 << PORTB1); //TOOGLE PORTB
-					SST_INT_LOCK();
+					// SST_INT_LOCK();
 					SST_post(TICK_TASK_C_PRIO,TICK_SIG,0);
 					SST_post(TICK_TASK_D_PRIO,TICK_SIG,0);
-					SST_INT_UNLOCK();
+					// SST_INT_UNLOCK();
 					do_sem_up(&s);
 	    	}
 			break;

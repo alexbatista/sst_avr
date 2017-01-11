@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
     stdin  = &uart_input;
 
     // pQ = ConstructQueue(7);
-    s = ConstructSemaphore(1);
+    ConstructSemaphore(1,&s);
 
     // pQ->s = s;
     /* Timer clock = I/O clock / 1024 */

@@ -32,8 +32,8 @@ enum SSTPriorities {     /* the SST priorities don't need to be consecutive */
     /* task priorities... */
     TICK_TASK_A_PRIO = 3,
     TICK_TASK_B_PRIO = 5,
-    TICK_TASK_D_PRIO = 7,
-    TICK_TASK_C_PRIO = 8,
+    TICK_TASK_D_PRIO = 8,
+    TICK_TASK_C_PRIO = 7,
 
     /* ISR priorities... */
     //KBD_ISR_PRIO     = 0xFF - 1,

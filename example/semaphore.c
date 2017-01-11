@@ -8,9 +8,11 @@
 
 /*https://github.com/shervinshaikh/minix/blob/master/semaphore.c*/
 /*http://stackoverflow.com/questions/330793/how-to-initialize-a-struct-in-accordance-with-c-programming-language-standards*/
-Semaphore ConstructSemaphore(int8_t c){
-	Semaphore sem = (Semaphore){ .counter = c,.tasksWaiting = 0};
-	return sem;
+void ConstructSemaphore(int8_t c, Semaphore* sem){
+	// Semaphore sem = (Semaphore){ .counter = c,.tasksWaiting = 0};
+	// return sem;
+	sem->counter = c;
+	sem->tasksWaiting = 0;
 }
 
 uint8_t do_sem_down(Semaphore *sem, uintX_t prior){
@@ -46,9 +48,7 @@ uint8_t do_sem_up(Semaphore *sem){
 
 		p = log(p)/log(2) +1.2; //calc log base 2 by ln
 		printf("There is a task with priority %d waiting for semaphore\n",p);
-		SST_INT_LOCK();
 		SST_post(p,TICK_SIG,0);
-		SST_INT_UNLOCK();
 	}
 
 	return OK;
