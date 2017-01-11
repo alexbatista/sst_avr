@@ -20,13 +20,13 @@ int put(MailBox *mailbox, int msg) {
         return FALSE;
     }
 
-    if (mailbox->size >= 1) {
+    if (mailbox->size > 0) {
         return FALSE;
     }
 
     //MailBox is empty
     if (mailbox->size == 0) {
-        mailbox->msgAvailable = msg;
+      mailbox->msgAvailable = msg;
     	mailbox->size++;
     }
     return TRUE;

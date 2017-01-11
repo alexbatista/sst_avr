@@ -36,10 +36,10 @@ void tickTaskA(SSTEvent e) {
 				}
 				int msg = 2016;
 				put(&mb,msg);
-				SST_INT_LOCK();
+				// SST_INT_LOCK();
 				SST_post(TICK_TASK_C_PRIO,TICK_SIG,0);
 				SST_post(TICK_TASK_D_PRIO,TICK_SIG,0);
-				SST_INT_UNLOCK();
+				// SST_INT_UNLOCK();
 				do_sem_up(&(mb.mutex));
     		}
 			break;
